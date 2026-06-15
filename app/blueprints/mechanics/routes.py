@@ -29,12 +29,20 @@ def create_mechanic():
 # GET all mechanics
 @mechanics_bp.route("/", methods=["GET"])
 @limiter.limit("100 per hour")
-@cache.cached(timeout=60)
 def get_all_mechanics():
-    query = select(Mechanic)
-    mechanics = db.session.execute(query).scalars().all()
+    try:
+        page = int(request.args.get("page"))
+        per_page = int(request.args.get("per_page"))
+        query = select(Mechanic)
+        mechanics = db.paginate(query, page=page, per_page=per_page)
 
-    return jsonify(mechanics_schema.dump(mechanics)), 200
+        return mechanics_schema.jsonify(mechanics), 200
+
+    except:
+        query = select(Mechanic)
+        mechanics = db.session.execute(query).scalars().all()
+
+        return jsonify(mechanics_schema.dump(mechanics)), 200
 
 # GET a single mechanic by ID
 @mechanics_bp.route("/<int:id>", methods=["GET"])

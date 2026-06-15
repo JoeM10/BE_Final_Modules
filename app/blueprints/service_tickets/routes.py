@@ -30,10 +30,20 @@ def create_service_ticket():
 @service_tickets_bp.route("/", methods=["GET"])
 @limiter.limit("100 per hour")
 def get_all_service_tickets():
-    query = select(Service_Ticket)
-    service_tickets = db.session.execute(query).scalars().all()
+    try:
+        page = int(request.args.get("page"))
+        per_page = int(request.args.get("per_page"))
+        query = select(Service_Ticket)
+        tickets = db.paginate(query, page=page, per_page=per_page)
 
-    return service_tickets_schema.jsonify(service_tickets), 200
+        return service_tickets_schema.jsonify(tickets), 200
+
+    except:
+        query = select(Service_Ticket)
+        service_tickets = db.session.execute(query).scalars().all()
+        
+        return service_tickets_schema.jsonify(service_tickets), 200
+
 
 # GET a single service ticket by ID
 @service_tickets_bp.route("/<int:id>", methods=["GET"])

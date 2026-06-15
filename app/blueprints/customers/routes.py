@@ -56,12 +56,20 @@ def create_customer():
 # GET all customers
 @customers_bp.route("/", methods=["GET"])
 @limiter.limit("100 per hour")
-@cache.cached(timeout=60)
 def get_customers():
-    query = select(Customer)
-    customers = db.session.execute(query).scalars().all()
+    try:
+        page = int(request.args.get("page"))
+        per_page = int(request.args.get("per_page"))
+        query = select(Customer)
+        customers = db.paginate(query, page=page, per_page=per_page)
 
-    return customers_schema.jsonify(customers)
+        return customers_schema.jsonify(customers), 200
+
+    except:
+        query = select(Customer)
+        customers = db.session.execute(query).scalars().all()
+
+        return customers_schema.jsonify(customers)
 
 # GET a single customer by ID
 @customers_bp.route("/<int:id>", methods=["GET"])
