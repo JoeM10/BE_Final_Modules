@@ -70,6 +70,16 @@ def update_mechanic(id):
 
     return jsonify(mechanic_schema.dump(mechanic)), 200
 
+# GET a sorted list of mechanics by amount of tickets worked on
+@mechanics_bp.route("/total_tickets", methods=["GET"])
+def total_tickets():
+    query = select(Mechanic)
+    mechanics = db.session.execute(query).scalars().all()
+
+    mechanics.sort(key= lambda mechanic: len(mechanic.service_tickets), reverse=True)
+
+    return mechanics_schema.jsonify(mechanics)
+
 # DELETE a mechanic by ID
 @mechanics_bp.route("/<int:id>", methods=["DELETE"])
 @limiter.limit("5 per day")

@@ -29,7 +29,6 @@ def create_service_ticket():
 # GET all service tickets
 @service_tickets_bp.route("/", methods=["GET"])
 @limiter.limit("100 per hour")
-@cache.cached(timeout=60)
 def get_all_service_tickets():
     query = select(Service_Ticket)
     service_tickets = db.session.execute(query).scalars().all()
@@ -39,7 +38,6 @@ def get_all_service_tickets():
 # GET a single service ticket by ID
 @service_tickets_bp.route("/<int:id>", methods=["GET"])
 @limiter.limit("100 per hour")
-@cache.cached(timeout=60)
 def get_service_ticket(id):
     query = select(Service_Ticket).where(Service_Ticket.id == id)
     service_ticket = db.session.execute(query).scalars().first()
