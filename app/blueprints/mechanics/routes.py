@@ -4,6 +4,7 @@ from marshmallow import ValidationError
 from sqlalchemy import select
 from app.models import Mechanic, db
 from . import mechanics_bp
+from app.extensions import limiter, cache
 
 # POST a new mechanic
 @mechanics_bp.route("/", methods=["POST"])
@@ -27,6 +28,8 @@ def create_mechanic():
 
 # GET all mechanics
 @mechanics_bp.route("/", methods=["GET"])
+@limiter.limit("100 per hour")
+@cache.cached(timeout=60)
 def get_all_mechanics():
     query = select(Mechanic)
     mechanics = db.session.execute(query).scalars().all()
@@ -35,6 +38,8 @@ def get_all_mechanics():
 
 # GET a single mechanic by ID
 @mechanics_bp.route("/<int:id>", methods=["GET"])
+@limiter.limit("100 per hour")
+@cache.cached(timeout=60)
 def get_mechanic(id):
     query = select(Mechanic).where(Mechanic.id == id)
     mechanic = db.session.execute(query).scalars().first()
@@ -67,6 +72,7 @@ def update_mechanic(id):
 
 # DELETE a mechanic by ID
 @mechanics_bp.route("/<int:id>", methods=["DELETE"])
+@limiter.limit("5 per day")
 def delete_mechanic(id):
     query = select(Mechanic).where(Mechanic.id == id)
     mechanic = db.session.execute(query).scalars().first()

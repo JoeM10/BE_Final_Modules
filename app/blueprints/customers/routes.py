@@ -1,12 +1,42 @@
-from .schemas import customer_schema, customers_schema
+from .schemas import customer_schema, customers_schema, login_schema
 from flask import request, jsonify
 from marshmallow import ValidationError
 from sqlalchemy import select
 from app.models import Customer, db
 from . import customers_bp
+from app.extensions import limiter, cache
+from app.utils.util import encode_token, token_required
+
+
+# Customer Login
+@customers_bp.route("/login", methods=["POST"])
+def login():
+    try:
+        credentials = login_schema.load(request.json)
+        email = credentials["email"]
+        password = credentials["password"]
+    except ValidationError as e:
+        return jsonify(e.messages), 400
+    
+    query = select(Customer).where(Customer.email == email)
+    customer = db.session.execute(query).scalars().first()
+
+    if customer and customer.password == password:
+        token = encode_token(customer.id)
+
+        response = {
+            "status": "success",
+            "message": "Successfully loggin in.",
+            "token": token
+        }
+
+        return jsonify(response), 200
+    else:
+        return jsonify({"message": "Invalid email or password!"})
 
 # POST a new customer
 @customers_bp.route("/", methods=["POST"])
+@limiter.limit("10 per day")
 def create_customer():
     try:
         data = customer_schema.load(request.json)
@@ -25,6 +55,8 @@ def create_customer():
 
 # GET all customers
 @customers_bp.route("/", methods=["GET"])
+@limiter.limit("100 per hour")
+@cache.cached(timeout=60)
 def get_customers():
     query = select(Customer)
     customers = db.session.execute(query).scalars().all()
@@ -33,6 +65,8 @@ def get_customers():
 
 # GET a single customer by ID
 @customers_bp.route("/<int:id>", methods=["GET"])
+@limiter.limit("100 per hour")
+@cache.cached(timeout=60)
 def get_customer(id):
     customer = db.session.get(Customer, id)
 
@@ -43,6 +77,8 @@ def get_customer(id):
 
 # PUT update a customer by ID
 @customers_bp.route("/<int:id>", methods=["PUT"])
+@limiter.limit("10 per day")
+@token_required
 def update_customer(id):
     customer = db.session.get(Customer, id)
 
@@ -61,7 +97,9 @@ def update_customer(id):
     return customer_schema.jsonify(customer), 200
 
 # DELETE a customer by ID
-@customers_bp.route("/<int:id>", methods=["DELETE"])
+@customers_bp.route("/", methods=["DELETE"])
+@limiter.limit("5 per day")
+@token_required
 def delete_customer(id):
     customer = db.session.get(Customer, id)
 
