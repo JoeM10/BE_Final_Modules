@@ -78,7 +78,7 @@ def total_tickets():
 
     mechanics.sort(key= lambda mechanic: len(mechanic.service_tickets), reverse=True)
 
-    return mechanics_schema.jsonify(mechanics)
+    return mechanics_schema.jsonify(mechanics), 200
 
 # DELETE a mechanic by ID
 @mechanics_bp.route("/<int:id>", methods=["DELETE"])
