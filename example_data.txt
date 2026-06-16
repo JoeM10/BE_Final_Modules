@@ -130,3 +130,8 @@ Example Inventory Data:
   "item_name": "Headlight",
   "price": 109.99
 }
+
+{
+  "item_name": "wrench",
+  "price": 14.99 
+}
