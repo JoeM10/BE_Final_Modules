@@ -48,3 +48,28 @@ class Service_Ticket(Base):
 
     customer: Mapped["Customer"] = db.relationship(back_populates="tickets")
     mechanics: Mapped[List["Mechanic"]] = db.relationship(secondary=service_mechanics, back_populates="service_tickets")
+    parts_used: Mapped[List["Parts_Per_Ticket"]] = db.relationship(back_populates="service_ticket", cascade="all, delete-orphan")
+
+class Inventory(Base):
+    __tablename__ = "inventory"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    item_name: Mapped[str] = mapped_column(db.String(255), unique=True, nullable=False)
+    price: Mapped[float] = mapped_column(nullable=False)
+
+    service_tickets_for_part: Mapped[List["Parts_Per_Ticket"]] = db.relationship(back_populates="part")
+
+class Parts_Per_Ticket(Base):
+    __tablename__ = "parts_per_ticket"
+    __table_args__ = (
+        db.UniqueConstraint("ticket_id", "part_id", name="unique_part_per_ticket"),
+        db.CheckConstraint("part_quantity > 0", name="positive_part_quantity"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    part_id: Mapped[int] = mapped_column(db.ForeignKey("inventory.id"), nullable=False)
+    ticket_id: Mapped[int] = mapped_column(db.ForeignKey("service_tickets.id"), nullable=False)
+    part_quantity: Mapped[int] = mapped_column(nullable=False)
+
+    part: Mapped["Inventory"] = db.relationship(back_populates="service_tickets_for_part")
+    service_ticket: Mapped["Service_Ticket"] = db.relationship(back_populates="parts_used")

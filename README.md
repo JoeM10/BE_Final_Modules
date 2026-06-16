@@ -44,8 +44,6 @@ BE_Final_Modules/
 
 ## Database Models
 
-## Database Models
-
 ### Customer
 
 | Field   | Description            |
@@ -126,8 +124,6 @@ The server will run at:
 ```text
 http://127.0.0.1:5000
 ```
-
-## API Routes
 
 ## API Routes
 

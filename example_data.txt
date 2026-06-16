@@ -1,0 +1,132 @@
+Example Customer Data:
+
+{
+  "name": "Avery Johnson",
+  "email": "avery.johnson@example.com",
+  "phone": "555-0101",
+  "password": "password123"
+}
+
+{
+  "name": "Jon Honson",
+  "email": "jon.honson@example.com",
+  "phone": "554-1101",
+  "password": "password321"
+}
+
+{
+  "name": "Garret McCoy",
+  "email": "garret.mccoy@example.com",
+  "phone": "545-0111",
+  "password": "password213"
+}
+
+{
+  "name": "Fred Nanders",
+  "email": "fred.nanders@example.com",
+  "phone": "455-1111",
+  "password": "password312"
+}
+
+Example Mechanic Data:
+
+{
+  "name": "Morgan Lee",
+  "email": "morgan.lee@example.com",
+  "phone": "555-0201",
+  "salary": 62000.00
+}
+
+{
+  "name": "Stanlee Morgan",
+  "email": "stanlee.morgan@example.com",
+  "phone": "545-2201",
+  "salary": 62000.00
+}
+
+{
+  "name": "Alex Kent",
+  "email": "alex.kent@example.com",
+  "phone": "553-5201",
+  "salary": 62000.00
+}
+
+{
+  "name": "Tom Settle",
+  "email": "tom.settle@example.com",
+  "phone": "355-6201",
+  "salary": 62000.00
+}
+
+Example Service Ticket Data:
+
+Important:
+The customer_id must match an existing customer id.
+Create a customer first, then use that customer's id here.
+
+Create Service Ticket
+POST http://127.0.0.1:5000/service-tickets/
+
+{
+  "VIN": "1HGCM82633A004352",
+  "service_date": "2026-06-16",
+  "service_desc": "Oil change, tire rotation, and brake inspection",
+  "customer_id": 1
+}
+
+{
+  "VIN": "2T1BURHE5KC123456",
+  "service_date": "2026-06-20",
+  "service_desc": "Check engine light diagnosis",
+  "customer_id": 2
+}
+
+{
+  "VIN": "2R1BUGEE6KC123456",
+  "service_date": "2026-03-20",
+  "service_desc": "Needs new air filter",
+  "customer_id": 3
+}
+
+{
+  "VIN": "3T1GTYHE5KC152456",
+  "service_date": "2026-09-20",
+  "service_desc": "Passenger headlight replacement",
+  "customer_id": 4
+}
+
+Assign Or Remove Mechanics On A Service Ticket
+
+{
+  "add_mechanic_ids": [1, 2],
+  "remove_mechanic_ids": []
+}
+
+Remove One Mechanic From A Service Ticket
+
+{
+  "add_mechanic_ids": [],
+  "remove_mechanic_ids": [2]
+}
+
+Example Inventory Data:
+
+{
+  "item_name": "Oil Filter",
+  "price": 14.99
+}
+
+{
+  "item_name": "Brake Pads",
+  "price": 89.99
+}
+
+{
+  "item_name": "Air Filter",
+  "price": 35.99
+}
+
+{
+  "item_name": "Headlight",
+  "price": 109.99
+}
