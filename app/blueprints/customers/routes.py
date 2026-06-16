@@ -1,11 +1,16 @@
-from .schemas import customer_schema, customers_schema, login_schema
+from .schemas import (
+    customer_schema,
+    customers_schema,
+    login_schema,
+)
 from flask import request, jsonify
 from marshmallow import ValidationError
 from sqlalchemy import select
-from app.models import Customer, db
+from app.models import Customer, Service_Ticket, db
 from . import customers_bp
 from app.extensions import limiter, cache
 from app.utils.util import encode_token, roles_required
+from app.blueprints.service_tickets.schemas import service_tickets_schema
 
 
 # Customer Login
@@ -36,8 +41,7 @@ def login():
 
 # POST a new customer
 @customers_bp.route("/", methods=["POST"])
-@limiter.limit("10 per day")
-@roles_required("customer", "mechanic")
+@limiter.limit("20 per hour")
 def create_customer():
     try:
         data = customer_schema.load(request.json)
@@ -54,11 +58,28 @@ def create_customer():
     db.session.commit()
     return customer_schema.jsonify(new_customer), 201
 
+# GET all tickets associated with the currently logged in customer
+@customers_bp.route("/my-tickets", methods=["GET"])
+@limiter.limit("50 per hour")
+@roles_required("customer",)
+def get_my_tickets(current_user):
+    customer_id = current_user["id"]
+
+    customer = db.session.get(Customer, customer_id)
+
+    if not customer:
+        return jsonify({"error": "Customer not found."}), 404
+    
+    query = select(Service_Ticket)
+    service_tickets = db.session.execute(query).scalars().all()
+
+    return service_tickets_schema.jsonify(service_tickets), 200
+
 # GET all customers
 @customers_bp.route("/", methods=["GET"])
 @limiter.limit("100 per hour")
 @roles_required("mechanic",)
-def get_customers():
+def get_customers(current_user):
     try:
         page = int(request.args.get("page"))
         per_page = int(request.args.get("per_page"))
@@ -78,7 +99,7 @@ def get_customers():
 @limiter.limit("100 per hour")
 @cache.cached(timeout=60)
 @roles_required("mechanic",)
-def get_customer(id):
+def get_customer(current_user, id):
     customer = db.session.get(Customer, id)
 
     if customer:
@@ -92,12 +113,57 @@ def get_customer(id):
 # @token_required
 # def
 
-# PUT update a customer by ID
+# PUT update a customer by ID for customer use only
 @customers_bp.route("/update_account", methods=["PUT"])
 @limiter.limit("10 per day")
-@roles_required("customer", "mechanic")
+@roles_required("customer",)
 def update_customer(customer_id):
     customer = db.session.get(Customer, int(customer_id))
+
+    if not customer:
+        return jsonify({"error": "Customer not found."}), 404
+
+    try:
+        data = customer_schema.load(request.json, partial=True)
+    except ValidationError as e:
+        return jsonify(e.messages), 400
+
+    # Prevent duplicate email when updating email
+    if "email" in data:
+        existing_email = db.session.execute(
+            select(Customer).where(
+                Customer.email == data["email"],
+                Customer.id != customer.id
+            )
+        ).scalars().first()
+
+        if existing_email:
+            return jsonify({"error": "Email already associated with an account."}), 400
+
+    # Prevent duplicate phone when updating phone
+    if "phone" in data:
+        existing_phone = db.session.execute(
+            select(Customer).where(
+                Customer.phone == data["phone"],
+                Customer.id != customer.id
+            )
+        ).scalars().first()
+
+        if existing_phone:
+            return jsonify({"error": "Phone already associated with an account."}), 400
+
+    for key, value in data.items():
+        setattr(customer, key, value)
+
+    db.session.commit()
+
+    return customer_schema.jsonify(customer), 200
+
+# PUT update a customer by ID for mechanic use only
+@customers_bp.route("/<int:id>", methods=["PUT"])
+@roles_required("mechanic",)
+def mechanic_update_customer(current_user, id):
+    customer = db.session.get(Customer, id)
 
     if not customer:
         return jsonify({"error": "Customer not found."}), 404
