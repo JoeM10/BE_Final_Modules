@@ -1,13 +1,40 @@
-from .schemas import mechanic_schema, mechanics_schema
+from .schemas import mechanic_schema, mechanics_schema, mechanic_login_schema
+from app.models import Mechanic, db
+from app.extensions import limiter, cache
+from app.utils.util import encode_token, roles_required
 from flask import request, jsonify
 from marshmallow import ValidationError
 from sqlalchemy import select
-from app.models import Mechanic, db
 from . import mechanics_bp
-from app.extensions import limiter, cache
+
+# Mechanic Login
+@mechanics_bp.route("/login", methods=["POST"])
+def mechanic_login():
+    try:
+        credentials = mechanic_login_schema.load(request.json)
+    except ValidationError as e:
+        return jsonify(e.messages), 400
+
+    email = credentials["email"]
+    password = credentials["password"]
+
+    query = select(Mechanic).where(Mechanic.email == email)
+    mechanic = db.session.execute(query).scalars().first()
+
+    if mechanic and mechanic.password == password:
+        token = encode_token(mechanic.id, "mechanic")
+
+        return jsonify({
+            "status": "success",
+            "message": f"Mechanic {mechanic.name} logged in successfully",
+            "token": token
+        }), 200
+
+    return jsonify({"message": "Invalid email or password."}), 401
 
 # POST a new mechanic
 @mechanics_bp.route("/", methods=["POST"])
+@roles_required("mechanic",)
 def create_mechanic():
     try:
         data = mechanic_schema.load(request.json)
@@ -29,6 +56,7 @@ def create_mechanic():
 # GET all mechanics
 @mechanics_bp.route("/", methods=["GET"])
 @limiter.limit("100 per hour")
+@roles_required("mechanic",)
 def get_all_mechanics():
     try:
         page = int(request.args.get("page"))
@@ -47,7 +75,7 @@ def get_all_mechanics():
 # GET a single mechanic by ID
 @mechanics_bp.route("/<int:id>", methods=["GET"])
 @limiter.limit("100 per hour")
-@cache.cached(timeout=60)
+@roles_required("mechanic",)
 def get_mechanic(id):
     query = select(Mechanic).where(Mechanic.id == id)
     mechanic = db.session.execute(query).scalars().first()
@@ -59,6 +87,7 @@ def get_mechanic(id):
 
 # PUT update a mechanic by ID
 @mechanics_bp.route("/<int:id>", methods=["PUT"])
+@roles_required("mechanic",)
 def update_mechanic(id):
     query = select(Mechanic).where(Mechanic.id == id)
     mechanic = db.session.execute(query).scalars().first()
@@ -80,6 +109,7 @@ def update_mechanic(id):
 
 # GET a sorted list of mechanics by amount of tickets worked on
 @mechanics_bp.route("/total_tickets", methods=["GET"])
+@roles_required("mechanic",)
 def total_tickets():
     query = select(Mechanic)
     mechanics = db.session.execute(query).scalars().all()
@@ -91,6 +121,7 @@ def total_tickets():
 # DELETE a mechanic by ID
 @mechanics_bp.route("/<int:id>", methods=["DELETE"])
 @limiter.limit("5 per day")
+@roles_required("mechanic",)
 def delete_mechanic(id):
     query = select(Mechanic).where(Mechanic.id == id)
     mechanic = db.session.execute(query).scalars().first()

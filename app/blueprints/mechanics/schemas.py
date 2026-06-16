@@ -12,6 +12,12 @@ class MechanicSchema(ma.SQLAlchemyAutoSchema):
 
     class Meta:
         model = Mechanic
-    
+        load_only = ("password",)    
+
+class MechanicLoginSchema(ma.Schema):
+    email = fields.Email(required=True)
+    password = fields.String(required=True, load_only=True)
+
 mechanic_schema = MechanicSchema()
 mechanics_schema = MechanicSchema(many=True)
+mechanic_login_schema = MechanicLoginSchema()

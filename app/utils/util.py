@@ -7,39 +7,55 @@ import os
 
 SECRET_KEY = os.getenv("PY_JOSE_TOKEN")
 
-def encode_token(user_id): #using unique pieces of info to make our tokens user specific
+def encode_token(user_id, role): #using unique pieces of info to make our tokens user specific
     payload = {
-        'exp': datetime.now(timezone.utc) + timedelta(days=0,hours=1), #Setting the expiration time to an hour past now
-        'iat': datetime.now(timezone.utc), #Issued at
-        'sub':  str(user_id) #This needs to be a string or the token will be malformed and won't be able to be decoded.
+        "exp": datetime.now(timezone.utc) + timedelta(days=0,hours=1), #Setting the expiration time to an hour past now
+        "iat": datetime.now(timezone.utc), #Issued at
+        "sub":  str(user_id), #This needs to be a string or the token will be malformed and won't be able to be decoded.
+        "role": role
     }
 
     token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
     return token
 
+def roles_required(*allowed_roles):
+    def decorator(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            auth_header = request.headers.get("Authorization")
 
-def token_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = None
-        # Look for the token in the Authorization header
-        if 'Authorization' in request.headers:
-            token = request.headers['Authorization'].split(" ")[1]
-        
-        if not token:
-            return jsonify({'message': 'Token is missing!'}), 401
+            if not auth_header:
+                return jsonify({"message": "Token is missing!"}), 401
 
-        try:
-            # Decode the token
-            data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-            user_id = data['sub']  # Fetch the user ID
-            
-        except jose.exceptions.ExpiredSignatureError:
-            return jsonify({'message': 'Token has expired!'}), 401
+            if not auth_header.startswith("Bearer "):
+                return jsonify({"message": "Invalid authorization header."}), 401
 
-        except jose.exceptions.JWTError:
-            return jsonify({'message': 'Invalid token!'}), 401
+            token = auth_header.split(" ", 1)[1]
 
-        return f(user_id, *args, **kwargs)
+            try:
+                data = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
 
-    return decorated
+                user_id = data["sub"]
+                role = data.get("role")
+
+                if role not in allowed_roles:
+                    return jsonify({
+                        "message": "You are not authorized to access this route."
+                    }), 403
+
+            except jose.exceptions.ExpiredSignatureError:
+                return jsonify({"message": "Token has expired!"}), 401
+
+            except jose.exceptions.JWTError:
+                return jsonify({"message": "Invalid token!"}), 401
+
+            current_user = {
+                "id": int(user_id),
+                "role": role
+            }
+
+            return f(current_user, *args, **kwargs)
+
+        return decorated
+
+    return decorator

@@ -1,13 +1,28 @@
-from .schemas import service_ticket_schema, service_tickets_schema, edit_service_ticket_schema
+from .schemas import (
+    service_ticket_schema,
+    service_tickets_schema,
+    edit_service_ticket_schema,
+    add_part_to_ticket_schema
+)
+from app.models import (
+    Customer,
+    Service_Ticket,
+    Mechanic,
+    Inventory,
+    Parts_Per_Ticket,
+    db
+)
 from flask import request, jsonify
 from marshmallow import ValidationError
 from sqlalchemy import select
-from app.models import Customer, Service_Ticket, Mechanic, db
 from . import service_tickets_bp
 from app.extensions import limiter, cache
+from app.utils.util import roles_required
+
 
 # POST a new service ticket
 @service_tickets_bp.route("/", methods=["POST"])
+@roles_required("mechanic",)
 def create_service_ticket():
     try:
         data = service_ticket_schema.load(request.json)
@@ -29,6 +44,7 @@ def create_service_ticket():
 # GET all service tickets
 @service_tickets_bp.route("/", methods=["GET"])
 @limiter.limit("100 per hour")
+@roles_required("mechanic",)
 def get_all_service_tickets():
     try:
         page = int(request.args.get("page"))
@@ -48,6 +64,7 @@ def get_all_service_tickets():
 # GET a single service ticket by ID
 @service_tickets_bp.route("/<int:id>", methods=["GET"])
 @limiter.limit("100 per hour")
+@roles_required("mechanic",)
 def get_service_ticket(id):
     query = select(Service_Ticket).where(Service_Ticket.id == id)
     service_ticket = db.session.execute(query).scalars().first()
@@ -60,6 +77,7 @@ def get_service_ticket(id):
 
 # PUT update mechanics assigned to a service ticket by service ticket ID
 @service_tickets_bp.route("/<int:id>/edit", methods=["PUT"])
+@roles_required("mechanic",)
 def update_service_ticket(id):
     query = select(Service_Ticket).where(Service_Ticket.id == id)
     service_ticket = db.session.execute(query).scalars().first()
@@ -89,32 +107,106 @@ def update_service_ticket(id):
     db.session.commit()
 
     return service_ticket_schema.jsonify(service_ticket), 200
-    
 
-# @service_tickets_bp.route("/<int:id>", methods=["PUT"])
-# def update_service_ticket(id):
-#     query = select(Service_Ticket).where(Service_Ticket.id == id)
-#     service_ticket = db.session.execute(query).scalars().first()
+# POST add parts to a service ticket via ID
+@service_tickets_bp.route("/<int:ticket_id>/parts", methods=["POST"])
+@roles_required("mechanic",)
+def add_part_to_ticket(ticket_id):
+    try:
+        data = add_part_to_ticket_schema.load(request.json)
+    except ValidationError as e:
+        return jsonify(e.messages), 400
 
-#     if not service_ticket:
-#         return jsonify({"error": "Service ticket not found"}), 404
-    
-#     try:
-#         data = service_ticket_schema.load(request.json, partial=True)
+    service_ticket = db.session.get(Service_Ticket, ticket_id)
 
-#     except ValidationError as e:
-#         return jsonify(e.messages), 400
-    
-#     for key, value in data.items():
-#         setattr(service_ticket, key, value)
+    if not service_ticket:
+        return jsonify({"error": "Service ticket not found."}), 404
 
-#     db.session.commit()
+    part = db.session.get(Inventory, data["part_id"])
 
-#     return service_ticket_schema.jsonify(service_ticket), 200
+    if not part:
+        return jsonify({"error": "Inventory part not found."}), 404
+
+    if data["part_quantity"] <= 0:
+        return jsonify({"error": "part_quantity must be greater than 0."}), 400
+
+    existing_part = db.session.execute(
+        select(Parts_Per_Ticket).where(
+            Parts_Per_Ticket.ticket_id == ticket_id,
+            Parts_Per_Ticket.part_id == data["part_id"]
+        )
+    ).scalars().first()
+
+    if existing_part:
+        existing_part.part_quantity += data["part_quantity"]
+    else:
+        part_assignment = Parts_Per_Ticket(
+            ticket_id=ticket_id,
+            part_id=data["part_id"],
+            part_quantity=data["part_quantity"]
+        )
+
+        db.session.add(part_assignment)
+
+    db.session.commit()
+
+    return service_ticket_schema.jsonify(service_ticket), 200
+
+# PUT update the quantity of a part on a ticket
+@service_tickets_bp.route("/<int:ticket_id>/parts/<int:part_id>", methods=["PUT"])
+@roles_required("mechanic",)
+def update_ticket_part_quantity(ticket_id, part_id):
+    data = request.json
+
+    if "part_quantity" not in data:
+        return jsonify({"error": "part_quantity is required."}), 400
+
+    if data["part_quantity"] <= 0:
+        return jsonify({"error": "part_quantity must be greater than 0."}), 400
+
+    ticket_part = db.session.execute(
+        select(Parts_Per_Ticket).where(
+            Parts_Per_Ticket.ticket_id == ticket_id,
+            Parts_Per_Ticket.part_id == part_id
+        )
+    ).scalars().first()
+
+    if not ticket_part:
+        return jsonify({"error": "Part is not assigned to this service ticket."}), 404
+
+    ticket_part.part_quantity = data["part_quantity"]
+
+    db.session.commit()
+
+    service_ticket = db.session.get(Service_Ticket, ticket_id)
+
+    return service_ticket_schema.jsonify(service_ticket), 200
+
+# DELETE a part from a service ticket
+@service_tickets_bp.route("/<int:ticket_id>/parts/<int:part_id>", methods=["DELETE"])
+@roles_required("mechanic",)
+def remove_part_from_ticket(ticket_id, part_id):
+    ticket_part = db.session.execute(
+        select(Parts_Per_Ticket).where(
+            Parts_Per_Ticket.ticket_id == ticket_id,
+            Parts_Per_Ticket.part_id == part_id
+        )
+    ).scalars().first()
+
+    if not ticket_part:
+        return jsonify({"error": "Part is not assigned to this service ticket."}), 404
+
+    db.session.delete(ticket_part)
+    db.session.commit()
+
+    service_ticket = db.session.get(Service_Ticket, ticket_id)
+
+    return service_ticket_schema.jsonify(service_ticket), 200
 
 # DELETE a service ticket by ID
 @service_tickets_bp.route("/<int:id>", methods=["DELETE"])
 @limiter.limit("5 per day")
+@roles_required("mechanic",)
 def delete_service_ticket(id):
     query = select(Service_Ticket).where(Service_Ticket.id == id)
     service_ticket = db.session.execute(query).scalars().first()

@@ -5,7 +5,7 @@ from sqlalchemy import select
 from app.models import Customer, db
 from . import customers_bp
 from app.extensions import limiter, cache
-from app.utils.util import encode_token, token_required
+from app.utils.util import encode_token, roles_required
 
 
 # Customer Login
@@ -22,7 +22,7 @@ def login():
     customer = db.session.execute(query).scalars().first()
 
     if customer and customer.password == password:
-        token = encode_token(customer.id)
+        token = encode_token(user_id=customer.id, role="customer")
 
         response = {
             "status": "success",
@@ -37,6 +37,7 @@ def login():
 # POST a new customer
 @customers_bp.route("/", methods=["POST"])
 @limiter.limit("10 per day")
+@roles_required("customer", "mechanic")
 def create_customer():
     try:
         data = customer_schema.load(request.json)
@@ -56,6 +57,7 @@ def create_customer():
 # GET all customers
 @customers_bp.route("/", methods=["GET"])
 @limiter.limit("100 per hour")
+@roles_required("mechanic",)
 def get_customers():
     try:
         page = int(request.args.get("page"))
@@ -75,6 +77,7 @@ def get_customers():
 @customers_bp.route("/<int:id>", methods=["GET"])
 @limiter.limit("100 per hour")
 @cache.cached(timeout=60)
+@roles_required("mechanic",)
 def get_customer(id):
     customer = db.session.get(Customer, id)
 
@@ -83,12 +86,18 @@ def get_customer(id):
 
     return jsonify({"error": "Customer not found."}), 404
 
+# GET all tickets related to a customer
+# @customers_bp.route("/my-tickets", methods=["GET"])
+# @limiter.limit("50 per hour")
+# @token_required
+# def
+
 # PUT update a customer by ID
-@customers_bp.route("/<int:id>", methods=["PUT"])
+@customers_bp.route("/update_account", methods=["PUT"])
 @limiter.limit("10 per day")
-@token_required
-def update_customer(id):
-    customer = db.session.get(Customer, id)
+@roles_required("customer", "mechanic")
+def update_customer(customer_id):
+    customer = db.session.get(Customer, int(customer_id))
 
     if not customer:
         return jsonify({"error": "Customer not found."}), 404
@@ -98,22 +107,54 @@ def update_customer(id):
     except ValidationError as e:
         return jsonify(e.messages), 400
 
+    # Prevent duplicate email when updating email
+    if "email" in data:
+        existing_email = db.session.execute(
+            select(Customer).where(
+                Customer.email == data["email"],
+                Customer.id != customer.id
+            )
+        ).scalars().first()
+
+        if existing_email:
+            return jsonify({"error": "Email already associated with an account."}), 400
+
+    # Prevent duplicate phone when updating phone
+    if "phone" in data:
+        existing_phone = db.session.execute(
+            select(Customer).where(
+                Customer.phone == data["phone"],
+                Customer.id != customer.id
+            )
+        ).scalars().first()
+
+        if existing_phone:
+            return jsonify({"error": "Phone already associated with an account."}), 400
+
     for key, value in data.items():
         setattr(customer, key, value)
 
     db.session.commit()
+
     return customer_schema.jsonify(customer), 200
 
 # DELETE a customer by ID
-@customers_bp.route("/", methods=["DELETE"])
+@customers_bp.route("/delete_account", methods=["DELETE"])
 @limiter.limit("5 per day")
-@token_required
-def delete_customer(id):
-    customer = db.session.get(Customer, id)
+@roles_required("customer", "mechanic")
+def delete_current_customer(customer_id):
+    customer = db.session.get(Customer, int(customer_id))
 
     if not customer:
         return jsonify({"error": "Customer not found."}), 404
 
+    if customer.tickets:
+        return jsonify({
+            "error": "Cannot delete customer because they have service tickets.",
+            "message": "Delete this customer's service tickets first, or keep the customer record for service history."
+        }), 409
+
     db.session.delete(customer)
     db.session.commit()
-    return jsonify({"message": f"Customer id: {id}, deleted successfully."}), 200
+
+    return jsonify({"message": "Customer deleted successfully."}), 200
