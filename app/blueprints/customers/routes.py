@@ -62,6 +62,7 @@ def create_customer():
 @customers_bp.route("/my-tickets", methods=["GET"])
 @limiter.limit("50 per hour")
 @roles_required("customer",)
+@cache.cached(timeout=60)
 def get_my_tickets(current_user):
     customer_id = current_user["id"]
 
@@ -95,7 +96,6 @@ def get_customers(current_user):
 
 # GET a single customer by ID
 @customers_bp.route("/<int:id>", methods=["GET"])
-@cache.cached(timeout=60)
 @roles_required("mechanic", "admin")
 def get_customer(current_user, id):
     customer = db.session.get(Customer, id)
