@@ -85,6 +85,17 @@ def get_mechanic(current_user, id):
 
     return jsonify(mechanic_schema.dump(mechanic)), 200
 
+# GET a sorted list of mechanics by amount of tickets worked on
+@mechanics_bp.route("/total_tickets", methods=["GET"])
+@roles_required("mechanic", "admin")
+def total_tickets(current_user):
+    query = select(Mechanic)
+    mechanics = db.session.execute(query).scalars().all()
+
+    mechanics.sort(key= lambda mechanic: len(mechanic.service_tickets), reverse=True)
+
+    return mechanics_schema.jsonify(mechanics), 200
+
 # PUT update a mechanic by ID
 @mechanics_bp.route("/<int:id>", methods=["PUT"])
 @roles_required("mechanic", "admin")
@@ -106,17 +117,6 @@ def update_mechanic(current_user, id):
     db.session.commit()
 
     return jsonify(mechanic_schema.dump(mechanic)), 200
-
-# GET a sorted list of mechanics by amount of tickets worked on
-@mechanics_bp.route("/total_tickets", methods=["GET"])
-@roles_required("mechanic", "admin")
-def total_tickets(current_user):
-    query = select(Mechanic)
-    mechanics = db.session.execute(query).scalars().all()
-
-    mechanics.sort(key= lambda mechanic: len(mechanic.service_tickets), reverse=True)
-
-    return mechanics_schema.jsonify(mechanics), 200
 
 # DELETE a mechanic by ID
 @mechanics_bp.route("/<int:id>", methods=["DELETE"])

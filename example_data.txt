@@ -143,6 +143,11 @@ Example Inventory Data:
 }
 
 {
-  "item_name": "wrench",
+  "item_name": "Wrench",
   "price": 14.99 
+}
+
+{
+  "item_name": "Screwdriver",
+  "price": 9.99
 }

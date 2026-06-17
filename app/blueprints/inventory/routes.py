@@ -2,15 +2,14 @@ from .schemas import inventory_schema, inventory_schemas
 from flask import request, jsonify
 from marshmallow import ValidationError
 from sqlalchemy import select
-from app.models import Customer, Service_Ticket, Mechanic, Inventory, db
+from app.models import Inventory, db
 from . import inventory_bp
-from app.extensions import cache
 from app.utils.util import roles_required
 
 # POST a new inventory item
 @inventory_bp.route("/", methods=["POST"])
-@roles_required("mechanic",)
-def create_inventory_item():
+@roles_required("mechanic", "admin")
+def create_inventory_item(current_user):
     try:
         data = inventory_schema.load(request.json)
     except ValidationError as e:
@@ -25,8 +24,8 @@ def create_inventory_item():
 
 # GET all inventory items
 @inventory_bp.route("/", methods=["GET"])
-@roles_required("mechanic",)
-def get_all_inventory_items():
+@roles_required("mechanic", "admin")
+def get_all_inventory_items(current_user):
     try:
         page = int(request.args.get("page"))
         per_page = int(request.args.get("per_page"))
@@ -44,8 +43,8 @@ def get_all_inventory_items():
 
 # GET a single inventory item by ID
 @inventory_bp.route("/<int:id>", methods=["GET"])
-@roles_required("mechanic",)
-def get_inventory_item(id):
+@roles_required("mechanic", "admin")
+def get_inventory_item(current_user, id):
     query = select(Inventory).where(Inventory.id == id)
     item = db.session.execute(query).scalars().first()
 
@@ -56,8 +55,8 @@ def get_inventory_item(id):
 
 # PUT update an inventory item by ID
 @inventory_bp.route("/<int:id>", methods=["PUT"])
-@roles_required("mechanic",)
-def update_inventory_item(id):
+@roles_required("mechanic", "admin")
+def update_inventory_item(current_user, id):
     query = select(Inventory).where(Inventory.id == id)
     inventory_item = db.session.execute(query).scalars().first()
 
@@ -79,8 +78,8 @@ def update_inventory_item(id):
 
 # DELETE a inventory item by ID
 @inventory_bp.route("/<int:id>", methods=["DELETE"])
-@roles_required("mechanic",)
-def delete_inventory_item(id):
+@roles_required("mechanic", "admin")
+def delete_inventory_item(current_user, id):
     query = select(Inventory).where(Inventory.id == id)
     inventory_item = db.session.execute(query).scalars().first()
 
