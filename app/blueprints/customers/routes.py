@@ -70,15 +70,14 @@ def get_my_tickets(current_user):
     if not customer:
         return jsonify({"error": "Customer not found."}), 404
     
-    query = select(Service_Ticket)
+    query = select(Service_Ticket).where(Service_Ticket.customer_id == customer_id)
     service_tickets = db.session.execute(query).scalars().all()
 
     return service_tickets_schema.jsonify(service_tickets), 200
 
 # GET all customers
 @customers_bp.route("/", methods=["GET"])
-@limiter.limit("100 per hour")
-@roles_required("mechanic",)
+@roles_required("mechanic", "admin")
 def get_customers(current_user):
     try:
         page = int(request.args.get("page"))
@@ -96,9 +95,8 @@ def get_customers(current_user):
 
 # GET a single customer by ID
 @customers_bp.route("/<int:id>", methods=["GET"])
-@limiter.limit("100 per hour")
 @cache.cached(timeout=60)
-@roles_required("mechanic",)
+@roles_required("mechanic", "admin")
 def get_customer(current_user, id):
     customer = db.session.get(Customer, id)
 
@@ -107,18 +105,14 @@ def get_customer(current_user, id):
 
     return jsonify({"error": "Customer not found."}), 404
 
-# GET all tickets related to a customer
-# @customers_bp.route("/my-tickets", methods=["GET"])
-# @limiter.limit("50 per hour")
-# @token_required
-# def
-
 # PUT update a customer by ID for customer use only
 @customers_bp.route("/update_account", methods=["PUT"])
 @limiter.limit("10 per day")
-@roles_required("customer",)
-def update_customer(customer_id):
-    customer = db.session.get(Customer, int(customer_id))
+@roles_required("customer")
+def update_customer(current_user):
+    customer_id = current_user["id"]
+
+    customer = db.session.get(Customer, customer_id)
 
     if not customer:
         return jsonify({"error": "Customer not found."}), 404
@@ -128,7 +122,6 @@ def update_customer(customer_id):
     except ValidationError as e:
         return jsonify(e.messages), 400
 
-    # Prevent duplicate email when updating email
     if "email" in data:
         existing_email = db.session.execute(
             select(Customer).where(
@@ -140,7 +133,6 @@ def update_customer(customer_id):
         if existing_email:
             return jsonify({"error": "Email already associated with an account."}), 400
 
-    # Prevent duplicate phone when updating phone
     if "phone" in data:
         existing_phone = db.session.execute(
             select(Customer).where(
@@ -159,9 +151,9 @@ def update_customer(customer_id):
 
     return customer_schema.jsonify(customer), 200
 
-# PUT update a customer by ID for mechanic use only
+# PUT update a customer by ID for non-customer use only
 @customers_bp.route("/<int:id>", methods=["PUT"])
-@roles_required("mechanic",)
+@roles_required("mechanic", "admin")
 def mechanic_update_customer(current_user, id):
     customer = db.session.get(Customer, id)
 
@@ -204,12 +196,34 @@ def mechanic_update_customer(current_user, id):
 
     return customer_schema.jsonify(customer), 200
 
-# DELETE a customer by ID
+# DELETE a customer by ID for customers only
 @customers_bp.route("/delete_account", methods=["DELETE"])
-@limiter.limit("5 per day")
-@roles_required("customer", "mechanic")
-def delete_current_customer(customer_id):
+@limiter.limit("10 per day")
+@roles_required("customer",)
+def delete_current_customer(current_user):
+    customer_id = current_user["id"]
+
     customer = db.session.get(Customer, int(customer_id))
+
+    if not customer:
+        return jsonify({"error": "Customer not found."}), 404
+
+    if customer.tickets:
+        return jsonify({
+            "error": "Cannot delete customer because they have service tickets.",
+            "message": "Delete this customer's service tickets first, or keep the customer record for service history."
+        }), 409
+
+    db.session.delete(customer)
+    db.session.commit()
+
+    return jsonify({"message": f"Customer {customer_id} deleted successfully."}), 200
+
+# DELETE a customer by ID for non-customers only
+@customers_bp.route("/<int:id>", methods=["DELETE"])
+@roles_required("mechanic", "admin")
+def delete_customer(current_user, id):
+    customer = db.session.get(Customer, int(id))
 
     if not customer:
         return jsonify({"error": "Customer not found."}), 404

@@ -22,8 +22,8 @@ from app.utils.util import roles_required
 
 # POST a new service ticket
 @service_tickets_bp.route("/", methods=["POST"])
-@roles_required("mechanic",)
-def create_service_ticket():
+@roles_required("mechanic", "admin")
+def create_service_ticket(current_user):
     try:
         data = service_ticket_schema.load(request.json)
     except ValidationError as e:
@@ -44,8 +44,8 @@ def create_service_ticket():
 # GET all service tickets
 @service_tickets_bp.route("/", methods=["GET"])
 @limiter.limit("100 per hour")
-@roles_required("mechanic",)
-def get_all_service_tickets():
+@roles_required("mechanic", "admin")
+def get_all_service_tickets(current_user):
     try:
         page = int(request.args.get("page"))
         per_page = int(request.args.get("per_page"))
@@ -64,8 +64,8 @@ def get_all_service_tickets():
 # GET a single service ticket by ID
 @service_tickets_bp.route("/<int:id>", methods=["GET"])
 @limiter.limit("100 per hour")
-@roles_required("mechanic",)
-def get_service_ticket(id):
+@roles_required("mechanic", "admin")
+def get_service_ticket(current_user, id):
     query = select(Service_Ticket).where(Service_Ticket.id == id)
     service_ticket = db.session.execute(query).scalars().first()
 
@@ -77,8 +77,8 @@ def get_service_ticket(id):
 
 # PUT update mechanics assigned to a service ticket by service ticket ID
 @service_tickets_bp.route("/<int:id>/edit", methods=["PUT"])
-@roles_required("mechanic",)
-def update_service_ticket(id):
+@roles_required("mechanic", "admin")
+def update_service_ticket(current_user, id):
     query = select(Service_Ticket).where(Service_Ticket.id == id)
     service_ticket = db.session.execute(query).scalars().first()
 
@@ -110,8 +110,8 @@ def update_service_ticket(id):
 
 # POST add parts to a service ticket via ID
 @service_tickets_bp.route("/<int:ticket_id>/parts", methods=["POST"])
-@roles_required("mechanic",)
-def add_part_to_ticket(ticket_id):
+@roles_required("mechanic", "admin")
+def add_part_to_ticket(current_user, ticket_id):
     try:
         data = add_part_to_ticket_schema.load(request.json)
     except ValidationError as e:
@@ -154,8 +154,8 @@ def add_part_to_ticket(ticket_id):
 
 # PUT update the quantity of a part on a ticket
 @service_tickets_bp.route("/<int:ticket_id>/parts/<int:part_id>", methods=["PUT"])
-@roles_required("mechanic",)
-def update_ticket_part_quantity(ticket_id, part_id):
+@roles_required("mechanic", "admin")
+def update_ticket_part_quantity(current_user, ticket_id, part_id):
     data = request.json
 
     if "part_quantity" not in data:
@@ -184,8 +184,8 @@ def update_ticket_part_quantity(ticket_id, part_id):
 
 # DELETE a part from a service ticket
 @service_tickets_bp.route("/<int:ticket_id>/parts/<int:part_id>", methods=["DELETE"])
-@roles_required("mechanic",)
-def remove_part_from_ticket(ticket_id, part_id):
+@roles_required("mechanic", "admin")
+def remove_part_from_ticket(current_user, ticket_id, part_id):
     ticket_part = db.session.execute(
         select(Parts_Per_Ticket).where(
             Parts_Per_Ticket.ticket_id == ticket_id,
@@ -206,8 +206,8 @@ def remove_part_from_ticket(ticket_id, part_id):
 # DELETE a service ticket by ID
 @service_tickets_bp.route("/<int:id>", methods=["DELETE"])
 @limiter.limit("5 per day")
-@roles_required("mechanic",)
-def delete_service_ticket(id):
+@roles_required("mechanic", "admin")
+def delete_service_ticket(current_user, id):
     query = select(Service_Ticket).where(Service_Ticket.id == id)
     service_ticket = db.session.execute(query).scalars().first()
 

@@ -34,28 +34,32 @@ Example Mechanic Data:
   "name": "Morgan Lee",
   "email": "morgan.lee@example.com",
   "phone": "555-0201",
-  "salary": 62000.00
+  "salary": 62000.00,
+  "password": "123uorme"
 }
 
 {
   "name": "Stanlee Morgan",
   "email": "stanlee.morgan@example.com",
   "phone": "545-2201",
-  "salary": 62000.00
+  "salary": 62000.00,
+  "password": "badpassword"
 }
 
 {
   "name": "Alex Kent",
   "email": "alex.kent@example.com",
   "phone": "553-5201",
-  "salary": 62000.00
+  "salary": 62000.00,
+  "password": "examplepass"
 }
 
 {
   "name": "Tom Settle",
   "email": "tom.settle@example.com",
   "phone": "355-6201",
-  "salary": 62000.00
+  "salary": 62000.00,
+  "password": "wasspord"
 }
 
 Example Service Ticket Data:
@@ -71,6 +75,13 @@ POST http://127.0.0.1:5000/service-tickets/
   "VIN": "1HGCM82633A004352",
   "service_date": "2026-06-16",
   "service_desc": "Oil change, tire rotation, and brake inspection",
+  "customer_id": 1
+}
+
+{
+  "VIN": "1HGCM82633A004352",
+  "service_date": "2026-06-18",
+  "service_desc": "Slight rattle when turning left",
   "customer_id": 1
 }
 

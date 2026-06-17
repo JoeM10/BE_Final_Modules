@@ -34,8 +34,8 @@ def mechanic_login():
 
 # POST a new mechanic
 @mechanics_bp.route("/", methods=["POST"])
-@roles_required("mechanic",)
-def create_mechanic():
+@roles_required("admin",)
+def create_mechanic(current_user):
     try:
         data = mechanic_schema.load(request.json)
     except ValidationError as e:
@@ -56,8 +56,8 @@ def create_mechanic():
 # GET all mechanics
 @mechanics_bp.route("/", methods=["GET"])
 @limiter.limit("100 per hour")
-@roles_required("mechanic",)
-def get_all_mechanics():
+@roles_required("mechanic", "admin")
+def get_all_mechanics(current_user):
     try:
         page = int(request.args.get("page"))
         per_page = int(request.args.get("per_page"))
@@ -75,8 +75,8 @@ def get_all_mechanics():
 # GET a single mechanic by ID
 @mechanics_bp.route("/<int:id>", methods=["GET"])
 @limiter.limit("100 per hour")
-@roles_required("mechanic",)
-def get_mechanic(id):
+@roles_required("mechanic", "admin")
+def get_mechanic(current_user, id):
     query = select(Mechanic).where(Mechanic.id == id)
     mechanic = db.session.execute(query).scalars().first()
 
@@ -87,8 +87,8 @@ def get_mechanic(id):
 
 # PUT update a mechanic by ID
 @mechanics_bp.route("/<int:id>", methods=["PUT"])
-@roles_required("mechanic",)
-def update_mechanic(id):
+@roles_required("mechanic", "admin")
+def update_mechanic(current_user, id):
     query = select(Mechanic).where(Mechanic.id == id)
     mechanic = db.session.execute(query).scalars().first()
 
@@ -109,8 +109,8 @@ def update_mechanic(id):
 
 # GET a sorted list of mechanics by amount of tickets worked on
 @mechanics_bp.route("/total_tickets", methods=["GET"])
-@roles_required("mechanic",)
-def total_tickets():
+@roles_required("mechanic", "admin")
+def total_tickets(current_user):
     query = select(Mechanic)
     mechanics = db.session.execute(query).scalars().all()
 
@@ -121,8 +121,8 @@ def total_tickets():
 # DELETE a mechanic by ID
 @mechanics_bp.route("/<int:id>", methods=["DELETE"])
 @limiter.limit("5 per day")
-@roles_required("mechanic",)
-def delete_mechanic(id):
+@roles_required("admin",)
+def delete_mechanic(current_user, id):
     query = select(Mechanic).where(Mechanic.id == id)
     mechanic = db.session.execute(query).scalars().first()
 
