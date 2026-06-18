@@ -1,0 +1,1201 @@
+swagger: '2.0'
+info:
+  title: "Mechanic Shop Final Project"
+  description: "API for managing customers, mechanics, inventory, and service tickets for a mechanic shop."
+  version: "1.0.0"
+host: "127.0.0.1:5000"
+basePath: "/"
+schemes:
+  - "http"
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+securityDefinitions:
+  BearerAuth:
+    type: "apiKey"
+    name: "Authorization"
+    in: "header"
+    description: "JWT authorization header. Use: Bearer <token>"
+tags:
+  - name: "Admin"
+  - name: "Customers"
+  - name: "Mechanics"
+  - name: "Inventory"
+  - name: "Service Tickets"
+paths:
+  /admin/login:
+    post:
+      tags:
+        - "Admin"
+      summary: "Log in as an admin, (generates token)"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/LoginRequest"
+      responses:
+        200:
+          description: "Admin logged in successfully."
+          schema:
+            $ref: "#/definitions/AuthResponse"
+        400:
+          description: "Validation error."
+          schema:
+            $ref: "#/definitions/ValidationError"
+        401:
+          description: "Invalid email or password."
+          schema:
+            $ref: "#/definitions/MessageResponse"
+
+  /customers/login:
+    post:
+      tags:
+        - "Customers"
+      summary: "Log in as a customer, (generates token)"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/LoginRequest"
+      responses:
+        200:
+          description: "Customer logged in successfully."
+          schema:
+            $ref: "#/definitions/AuthResponse"
+        400:
+          description: "Validation error."
+          schema:
+            $ref: "#/definitions/ValidationError"
+
+  /customers/:
+    post:
+      tags:
+        - "Customers"
+      summary: "Create a customer account"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/CustomerInput"
+      responses:
+        201:
+          description: "Customer created."
+          schema:
+            $ref: "#/definitions/Customer"
+        400:
+          description: "Validation error or duplicate email."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    get:
+      tags:
+        - "Customers"
+      summary: "Get all customers"
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/parameters/PageParam"
+        - $ref: "#/parameters/PerPageParam"
+      responses:
+        200:
+          description: "List of customers."
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Customer"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /customers/my-tickets:
+    get:
+      tags:
+        - "Customers"
+      summary: "Get service tickets for the logged-in customer"
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: "Customer service tickets."
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/ServiceTicket"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: "Customer not found."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /customers/update_account:
+    put:
+      tags:
+        - "Customers"
+      summary: "Update the logged-in customer account"
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/CustomerUpdate"
+      responses:
+        200:
+          description: "Updated customer."
+          schema:
+            $ref: "#/definitions/Customer"
+        400:
+          description: "Validation error or duplicate email/phone."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: "Customer not found."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /customers/delete_account:
+    delete:
+      tags:
+        - "Customers"
+      summary: "Delete the logged-in customer account"
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: "Customer deleted."
+          schema:
+            $ref: "#/definitions/MessageResponse"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: "Customer not found."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        409:
+          description: "Customer has service tickets and cannot be deleted."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /customers/{id}:
+    get:
+      tags:
+        - "Customers"
+      summary: "Get one customer by ID"
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/parameters/IdPathParam"
+      responses:
+        200:
+          description: "Customer found."
+          schema:
+            $ref: "#/definitions/Customer"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: "Customer not found."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      tags:
+        - "Customers"
+      summary: "Update one customer by ID"
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/parameters/IdPathParam"
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/CustomerUpdate"
+      responses:
+        200:
+          description: "Updated customer."
+          schema:
+            $ref: "#/definitions/Customer"
+        400:
+          description: "Validation error or duplicate email/phone."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: "Customer not found."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    delete:
+      tags:
+        - "Customers"
+      summary: "Delete one customer by ID"
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/parameters/IdPathParam"
+      responses:
+        200:
+          description: "Customer deleted."
+          schema:
+            $ref: "#/definitions/MessageResponse"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: "Customer not found."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        409:
+          description: "Customer has service tickets and cannot be deleted."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /mechanics/login:
+    post:
+      tags:
+        - "Mechanics"
+      summary: "Log in as a mechanic, (generates token)"
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/LoginRequest"
+      responses:
+        200:
+          description: "Mechanic logged in successfully."
+          schema:
+            $ref: "#/definitions/AuthResponse"
+        400:
+          description: "Validation error."
+          schema:
+            $ref: "#/definitions/ValidationError"
+        401:
+          description: "Invalid email or password."
+          schema:
+            $ref: "#/definitions/MessageResponse"
+
+  /mechanics/:
+    post:
+      tags:
+        - "Mechanics"
+      summary: "Create a mechanic"
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/MechanicInput"
+      responses:
+        201:
+          description: "Mechanic created."
+          schema:
+            $ref: "#/definitions/Mechanic"
+        400:
+          description: "Validation error or duplicate email."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    get:
+      tags:
+        - "Mechanics"
+      summary: "Get all mechanics"
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/parameters/PageParam"
+        - $ref: "#/parameters/PerPageParam"
+      responses:
+        200:
+          description: "List of mechanics."
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Mechanic"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /mechanics/total_tickets:
+    get:
+      tags:
+        - "Mechanics"
+      summary: "Get mechanics sorted by number of assigned service tickets"
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: "Mechanics sorted by ticket count."
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Mechanic"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /mechanics/{id}:
+    get:
+      tags:
+        - "Mechanics"
+      summary: "Get one mechanic by ID"
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/parameters/IdPathParam"
+      responses:
+        200:
+          description: "Mechanic found."
+          schema:
+            $ref: "#/definitions/Mechanic"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: "Mechanic not found."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      tags:
+        - "Mechanics"
+      summary: "Update one mechanic by ID"
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/parameters/IdPathParam"
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/MechanicUpdate"
+      responses:
+        200:
+          description: "Updated mechanic."
+          schema:
+            $ref: "#/definitions/Mechanic"
+        400:
+          description: "Validation error."
+          schema:
+            $ref: "#/definitions/ValidationError"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: "Mechanic not found."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    delete:
+      tags:
+        - "Mechanics"
+      summary: "Delete one mechanic by ID"
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/parameters/IdPathParam"
+      responses:
+        200:
+          description: "Mechanic deleted."
+          schema:
+            $ref: "#/definitions/MessageResponse"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: "Mechanic not found."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /inventory/:
+    post:
+      tags:
+        - "Inventory"
+      summary: "Create an inventory item"
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/InventoryInput"
+      responses:
+        201:
+          description: "Inventory item created."
+          schema:
+            $ref: "#/definitions/Inventory"
+        400:
+          description: "Validation error."
+          schema:
+            $ref: "#/definitions/ValidationError"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    get:
+      tags:
+        - "Inventory"
+      summary: "Get all inventory items"
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/parameters/PageParam"
+        - $ref: "#/parameters/PerPageParam"
+      responses:
+        200:
+          description: "List of inventory items."
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Inventory"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /inventory/{id}:
+    get:
+      tags:
+        - "Inventory"
+      summary: "Get one inventory item by ID"
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/parameters/IdPathParam"
+      responses:
+        200:
+          description: "Inventory item found."
+          schema:
+            $ref: "#/definitions/Inventory"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: "Item not found."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      tags:
+        - "Inventory"
+      summary: "Update one inventory item by ID"
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/parameters/IdPathParam"
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/InventoryUpdate"
+      responses:
+        200:
+          description: "Updated inventory item."
+          schema:
+            $ref: "#/definitions/Inventory"
+        400:
+          description: "Validation error."
+          schema:
+            $ref: "#/definitions/ValidationError"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: "Item not found."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    delete:
+      tags:
+        - "Inventory"
+      summary: "Delete one inventory item by ID"
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/parameters/IdPathParam"
+      responses:
+        200:
+          description: "Inventory item deleted."
+          schema:
+            $ref: "#/definitions/MessageResponse"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: "Item not found."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /service-tickets/:
+    post:
+      tags:
+        - "Service Tickets"
+      summary: "Create a service ticket"
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/ServiceTicketInput"
+      responses:
+        201:
+          description: "Service ticket created."
+          schema:
+            $ref: "#/definitions/ServiceTicket"
+        400:
+          description: "Validation error."
+          schema:
+            $ref: "#/definitions/ValidationError"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: "Customer not found."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    get:
+      tags:
+        - "Service Tickets"
+      summary: "Get all service tickets"
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/parameters/PageParam"
+        - $ref: "#/parameters/PerPageParam"
+      responses:
+        200:
+          description: "List of service tickets."
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/ServiceTicket"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /service-tickets/{id}:
+    get:
+      tags:
+        - "Service Tickets"
+      summary: "Get one service ticket by ID"
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/parameters/IdPathParam"
+      responses:
+        200:
+          description: "Service ticket found."
+          schema:
+            $ref: "#/definitions/ServiceTicket"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: "Service ticket not found."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    delete:
+      tags:
+        - "Service Tickets"
+      summary: "Delete one service ticket by ID"
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/parameters/IdPathParam"
+      responses:
+        200:
+          description: "Service ticket deleted."
+          schema:
+            $ref: "#/definitions/MessageResponse"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: "Service ticket not found."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /service-tickets/{id}/edit:
+    put:
+      tags:
+        - "Service Tickets"
+      summary: "Add or remove mechanics assigned to a service ticket"
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/parameters/IdPathParam"
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/ServiceTicketMechanicEdit"
+      responses:
+        200:
+          description: "Updated service ticket."
+          schema:
+            $ref: "#/definitions/ServiceTicket"
+        400:
+          description: "Validation error."
+          schema:
+            $ref: "#/definitions/ValidationError"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: "Service ticket not found."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /service-tickets/{ticket_id}/parts:
+    post:
+      tags:
+        - "Service Tickets"
+      summary: "Add an inventory part to a service ticket"
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/parameters/TicketIdPathParam"
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/TicketPartInput"
+      responses:
+        200:
+          description: "Updated service ticket."
+          schema:
+            $ref: "#/definitions/ServiceTicket"
+        400:
+          description: "Validation error or invalid quantity."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: "Service ticket or inventory part not found."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /service-tickets/{ticket_id}/parts/{part_id}:
+    put:
+      tags:
+        - "Service Tickets"
+      summary: "Update a part quantity on a service ticket"
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/parameters/TicketIdPathParam"
+        - $ref: "#/parameters/PartIdPathParam"
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/TicketPartQuantityUpdate"
+      responses:
+        200:
+          description: "Updated service ticket."
+          schema:
+            $ref: "#/definitions/ServiceTicket"
+        400:
+          description: "Missing or invalid part quantity."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: "Part is not assigned to this service ticket."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    delete:
+      tags:
+        - "Service Tickets"
+      summary: "Remove a part from a service ticket"
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/parameters/TicketIdPathParam"
+        - $ref: "#/parameters/PartIdPathParam"
+      responses:
+        200:
+          description: "Updated service ticket."
+          schema:
+            $ref: "#/definitions/ServiceTicket"
+        401:
+          description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: "Part is not assigned to this service ticket."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+parameters:
+  IdPathParam:
+    name: "id"
+    in: "path"
+    required: true
+    type: "integer"
+    format: "int32"
+  TicketIdPathParam:
+    name: "ticket_id"
+    in: "path"
+    required: true
+    type: "integer"
+    format: "int32"
+  PartIdPathParam:
+    name: "part_id"
+    in: "path"
+    required: true
+    type: "integer"
+    format: "int32"
+  PageParam:
+    name: "page"
+    in: "query"
+    required: false
+    type: "integer"
+    format: "int32"
+  PerPageParam:
+    name: "per_page"
+    in: "query"
+    required: false
+    type: "integer"
+    format: "int32"
+
+definitions:
+  LoginRequest:
+    type: "object"
+    required:
+      - "email"
+      - "password"
+    properties:
+      email:
+        type: "string"
+        format: "email"
+        example: "user@example.com"
+      password:
+        type: "string"
+        format: "password"
+        example: "password123"
+
+  AuthResponse:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        example: "success"
+      message:
+        type: "string"
+        example: "Logged in successfully."
+      token:
+        type: "string"
+        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+  CustomerInput:
+    type: "object"
+    required:
+      - "name"
+      - "email"
+      - "phone"
+      - "password"
+    properties:
+      name:
+        type: "string"
+        example: "Jane Driver"
+      email:
+        type: "string"
+        format: "email"
+        example: "jane@example.com"
+      phone:
+        type: "string"
+        example: "555-0100"
+      password:
+        type: "string"
+        format: "password"
+        example: "password123"
+
+  CustomerUpdate:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        example: "Jane Driver"
+      email:
+        type: "string"
+        format: "email"
+        example: "jane@example.com"
+      phone:
+        type: "string"
+        example: "555-0100"
+      password:
+        type: "string"
+        format: "password"
+        example: "newpassword123"
+
+  Customer:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        example: 1
+      name:
+        type: "string"
+        example: "Jane Driver"
+      email:
+        type: "string"
+        format: "email"
+        example: "jane@example.com"
+      phone:
+        type: "string"
+        example: "555-0100"
+      password:
+        type: "string"
+        example: "password123"
+
+  MechanicInput:
+    type: "object"
+    required:
+      - "name"
+      - "email"
+      - "phone"
+      - "salary"
+      - "password"
+    properties:
+      name:
+        type: "string"
+        example: "Alex Wrench"
+      email:
+        type: "string"
+        format: "email"
+        example: "alex@example.com"
+      phone:
+        type: "string"
+        example: "555-0110"
+      salary:
+        type: "number"
+        format: "float"
+        example: 65000.0
+      password:
+        type: "string"
+        format: "password"
+        example: "password123"
+
+  MechanicUpdate:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        example: "Alex Wrench"
+      email:
+        type: "string"
+        format: "email"
+        example: "alex@example.com"
+      phone:
+        type: "string"
+        example: "555-0110"
+      salary:
+        type: "number"
+        format: "float"
+        example: 70000.0
+      password:
+        type: "string"
+        format: "password"
+        example: "newpassword123"
+
+  Mechanic:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        example: 1
+      name:
+        type: "string"
+        example: "Alex Wrench"
+      email:
+        type: "string"
+        format: "email"
+        example: "alex@example.com"
+      phone:
+        type: "string"
+        example: "555-0110"
+      salary:
+        type: "number"
+        format: "float"
+        example: 65000.0
+      service_tickets:
+        type: "array"
+        items:
+          $ref: "#/definitions/MechanicServiceTicket"
+
+  MechanicSummary:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        example: 1
+      name:
+        type: "string"
+        example: "Alex Wrench"
+
+  MechanicServiceTicket:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        example: 1
+      VIN:
+        type: "string"
+        example: "1HGBH41JXMN109186"
+      service_date:
+        type: "string"
+        format: "date"
+        example: "2026-06-17"
+      service_desc:
+        type: "string"
+        example: "Oil change and tire rotation"
+      customer_id:
+        type: "integer"
+        example: 1
+
+  InventoryInput:
+    type: "object"
+    required:
+      - "item_name"
+      - "price"
+    properties:
+      item_name:
+        type: "string"
+        example: "Oil Filter"
+      price:
+        type: "number"
+        format: "float"
+        example: 19.99
+
+  InventoryUpdate:
+    type: "object"
+    properties:
+      item_name:
+        type: "string"
+        example: "Oil Filter"
+      price:
+        type: "number"
+        format: "float"
+        example: 21.99
+
+  Inventory:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        example: 1
+      item_name:
+        type: "string"
+        example: "Oil Filter"
+      price:
+        type: "number"
+        format: "float"
+        example: 19.99
+      service_tickets_for_part:
+        type: "array"
+        items:
+          $ref: "#/definitions/PartAssignedToTicket"
+
+  InventorySummary:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        example: 1
+      item_name:
+        type: "string"
+        example: "Oil Filter"
+      price:
+        type: "number"
+        format: "float"
+        example: 19.99
+
+  PartAssignedToTicket:
+    type: "object"
+    properties:
+      ticket_id:
+        type: "integer"
+        example: 1
+      part_quantity:
+        type: "integer"
+        example: 2
+
+  ServiceTicketInput:
+    type: "object"
+    required:
+      - "VIN"
+      - "service_date"
+      - "service_desc"
+      - "customer_id"
+    properties:
+      VIN:
+        type: "string"
+        example: "1HGBH41JXMN109186"
+      service_date:
+        type: "string"
+        format: "date"
+        example: "2026-06-17"
+      service_desc:
+        type: "string"
+        example: "Oil change and tire rotation"
+      customer_id:
+        type: "integer"
+        example: 1
+
+  ServiceTicket:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        example: 1
+      VIN:
+        type: "string"
+        example: "1HGBH41JXMN109186"
+      service_date:
+        type: "string"
+        format: "date"
+        example: "2026-06-17"
+      service_desc:
+        type: "string"
+        example: "Oil change and tire rotation"
+      customer_id:
+        type: "integer"
+        example: 1
+      mechanics:
+        type: "array"
+        items:
+          $ref: "#/definitions/MechanicSummary"
+      parts_used:
+        type: "array"
+        items:
+          $ref: "#/definitions/PartUsed"
+
+  ServiceTicketMechanicEdit:
+    type: "object"
+    required:
+      - "add_mechanic_ids"
+      - "remove_mechanic_ids"
+    properties:
+      add_mechanic_ids:
+        type: "array"
+        items:
+          type: "integer"
+        example:
+          - 1
+          - 2
+      remove_mechanic_ids:
+        type: "array"
+        items:
+          type: "integer"
+        example:
+          - 3
+
+  TicketPartInput:
+    type: "object"
+    required:
+      - "part_id"
+      - "part_quantity"
+    properties:
+      part_id:
+        type: "integer"
+        example: 1
+      part_quantity:
+        type: "integer"
+        example: 2
+
+  TicketPartQuantityUpdate:
+    type: "object"
+    required:
+      - "part_quantity"
+    properties:
+      part_quantity:
+        type: "integer"
+        example: 3
+
+  PartUsed:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        example: 1
+      ticket_id:
+        type: "integer"
+        example: 1
+      part_id:
+        type: "integer"
+        example: 1
+      part_quantity:
+        type: "integer"
+        example: 2
+      part:
+        $ref: "#/definitions/InventorySummary"
+
+  MessageResponse:
+    type: "object"
+    properties:
+      message:
+        type: "string"
+        example: "Operation completed successfully."
+
+  ErrorResponse:
+    type: "object"
+    properties:
+      error:
+        type: "string"
+        example: "Resource not found."
+      message:
+        type: "string"
+        example: "Additional details."
+
+  ValidationError:
+    type: "object"
+    additionalProperties:
+      type: "array"
+      items:
+        type: "string"
