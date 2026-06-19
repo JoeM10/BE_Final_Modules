@@ -2,6 +2,9 @@ import os
 import unittest
 from app import create_app
 
+os.environ.setdefault("PY_JOSE_TOKEN", "test-secret-key")
+
+
 class TestAdmin(unittest.TestCase):
     def setUp(self):
         self.admin_email = "admin@email.com"

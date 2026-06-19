@@ -122,18 +122,7 @@ def update_customer(current_user):
     except ValidationError as e:
         return jsonify(e.messages), 400
 
-    if "name" in data:
-        if data["name"] == "":
-            return jsonify({"error": "Name cannot be blank."}), 400
-
-    if "password" in data:
-        if data["password"] == "":
-            return jsonify({"error": "Password cannot be blank."}), 400
-
     if "email" in data:
-        if data["email"] == "":
-            return jsonify({"error": "Email cannot be blank."}), 400
-
         existing_email = db.session.execute(
             select(Customer).where(
                 Customer.email == data["email"],
@@ -145,9 +134,6 @@ def update_customer(current_user):
             return jsonify({"error": "Email already associated with an account."}), 400
 
     if "phone" in data:
-        if data["phone"] == "":
-            return jsonify({"error": "Phone cannot be blank."}), 400
-
         existing_phone = db.session.execute(
             select(Customer).where(
                 Customer.phone == data["phone"],
@@ -179,19 +165,8 @@ def mechanic_update_customer(current_user, id):
     except ValidationError as e:
         return jsonify(e.messages), 400
 
-    if "name" in data:
-        if data["name"] == "":
-            return jsonify({"error": "Name cannot be blank."}), 400
-
-    if "password" in data:
-        if data["password"] == "":
-            return jsonify({"error": "Password cannot be blank."}), 400
-
     # Prevent duplicate email when updating email
     if "email" in data:
-        if data["email"] == "":
-            return jsonify({"error": "Email cannot be blank."}), 400
-        
         existing_email = db.session.execute(
             select(Customer).where(
                 Customer.email == data["email"],
@@ -204,9 +179,6 @@ def mechanic_update_customer(current_user, id):
 
     # Prevent duplicate phone when updating phone
     if "phone" in data:
-        if data["phone"] == "":
-            return jsonify({"error": "Phone cannot be blank."}), 400
-        
         existing_phone = db.session.execute(
             select(Customer).where(
                 Customer.phone == data["phone"],

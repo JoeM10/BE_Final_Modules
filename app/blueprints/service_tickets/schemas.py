@@ -1,6 +1,11 @@
 from app.extensions import ma
 from app.models import Service_Ticket, Mechanic, Parts_Per_Ticket, Inventory
-from marshmallow import fields
+from marshmallow import ValidationError, fields, validate
+
+
+def not_blank(value):
+    if not value.strip():
+        raise ValidationError("Field cannot be blank.")
 
 
 class MechanicsOnTicketSchema(ma.SQLAlchemyAutoSchema):
@@ -27,6 +32,12 @@ class PartsUsedSchema(ma.SQLAlchemyAutoSchema):
 class ServiceTicketSchema(ma.SQLAlchemyAutoSchema):
     mechanics = fields.Nested(MechanicsOnTicketSchema, many=True, dump_only=True)
     parts_used = fields.Nested(PartsUsedSchema, many=True, dump_only=True)
+
+    # Validation
+    VIN = fields.String(required=True, validate=[not_blank, validate.Length(max=50)])
+    service_date = fields.Date(required=True)
+    service_desc = fields.String(required=True, validate=[not_blank, validate.Length(max=255)])
+    customer_id = fields.Integer(required=True, validate=validate.Range(min=1))
 
     class Meta:
         model = Service_Ticket

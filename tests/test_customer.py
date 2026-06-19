@@ -5,6 +5,8 @@ from app import create_app
 from app.models import Customer, Service_Ticket, db
 from app.utils.util import encode_token
 
+os.environ.setdefault("PY_JOSE_TOKEN", "test-secret-key")
+
 class TestCustomer(unittest.TestCase):
     def setUp(self):
         self.app = create_app("TestingConfig")
@@ -21,9 +23,6 @@ class TestCustomer(unittest.TestCase):
                 phone="123-4567",
                 password="test"
             )
-            db.session.add(self.customer1)
-            db.session.commit()
-            self.customer1_id = self.customer1.id
 
             self.customer2 = Customer(
                 name="test2_user",
@@ -31,9 +30,10 @@ class TestCustomer(unittest.TestCase):
                 phone="123-4562",
                 password="test"
             )
-            db.session.add(self.customer2)
+            db.session.add_all([self.customer1, self.customer2])
             db.session.commit()
             self.customer2_id = self.customer2.id
+            self.customer1_id = self.customer1.id
 
             self.service_ticket = Service_Ticket(
                 VIN="1HGCM82633A004352",
@@ -191,7 +191,10 @@ class TestCustomer(unittest.TestCase):
         )
 
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json["error"], "Email cannot be blank.")
+        self.assertEqual(
+            response.json["email"],
+            ["Not a valid email address.", "Field cannot be blank."]
+        )
 
     def test_admin_update_customer(self):
         update_payload = {
@@ -222,7 +225,7 @@ class TestCustomer(unittest.TestCase):
         )
 
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json["error"], "Phone cannot be blank.")
+        self.assertEqual(response.json["phone"], ["Field cannot be blank."])
 
     def test_delete_current_customer(self):
         response = self.client.delete(
