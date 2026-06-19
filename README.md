@@ -1,6 +1,6 @@
 # Mechanic Shop API
 
-A Flask REST API (Application Programming Interface) for managing a mechanic shop database. This project supports customers, mechanics, service tickets, inventory parts, parts used on tickets, token authentication, role-based route protection, rate limiting, caching, and Postman testing.
+A Flask REST API (Application Programming Interface) for managing a mechanic shop database. This project supports customers, mechanics, service tickets, inventory parts, parts used on tickets, token authentication, role-based route protection, rate limiting, caching, Swagger API documentation, automated unit tests, and Postman testing.
 
 ## Features
 
@@ -16,6 +16,8 @@ A Flask REST API (Application Programming Interface) for managing a mechanic sho
 | Role-based protection     | Protects routes using customer, mechanic, and admin roles.                                                                                  |
 | Rate limiting             | Uses Flask-Limiter to limit requests on selected routes.                                                                                    |
 | Caching                   | Uses Flask-Caching with SimpleCache configuration.                                                                                          |
+| Swagger documentation     | Includes Swagger UI documentation for viewing and testing API routes in the browser.                                                        |
+| Automated testing         | Includes Python unit tests for admin, customer, mechanic, inventory, and service ticket routes.                                             |
 | Postman testing           | Includes a Postman collection for testing API routes.                                                                                       |
 
 ## Tech Stack
@@ -33,6 +35,9 @@ A Flask REST API (Application Programming Interface) for managing a mechanic sho
 | python-jose            | JWT (JSON Web Token) creation and validation.                                 |
 | Flask-Limiter          | API route rate limiting.                                                      |
 | Flask-Caching          | Route and app-level caching support.                                          |
+| Flask-Swagger          | Swagger documentation support.                                                |
+| Flask-Swagger-UI       | Browser-based Swagger UI for API documentation.                               |
+| unittest               | Python testing framework used for automated route tests.                      |
 | Postman                | API testing through the included collection.                                  |
 
 ## Project Structure
@@ -46,11 +51,19 @@ BE_Final_Modules/
 │   │   ├── inventory/
 │   │   ├── mechanics/
 │   │   └── service_tickets/
+│   ├── static/
+│   │   └── swagger.yaml
 │   ├── utils/
 │   │   └── util.py
 │   ├── __init__.py
 │   ├── extensions.py
 │   └── models.py
+├── tests/
+│   ├── test_admin.py
+│   ├── test_customer.py
+│   ├── test_inventory.py
+│   ├── test_mechanics.py
+│   └── test_service_tickets.py
 ├── app.py
 ├── config.py
 ├── example_data.txt
@@ -179,6 +192,24 @@ Server URL:
 http://127.0.0.1:5000
 ```
 
+## Swagger API Documentation
+
+Swagger UI has been added to provide browser-based documentation for the API routes.
+
+After starting the Flask app, open the Swagger documentation at:
+
+```text
+http://127.0.0.1:5000/api/docs
+```
+
+The Swagger UI uses the `swagger.yaml` file located in:
+
+```text
+app/static/swagger.yaml
+```
+
+This allows the API routes, request bodies, response examples, and authentication requirements to be documented in one place.
+
 ## API Routes
 
 ### Admin Routes
@@ -238,9 +269,33 @@ http://127.0.0.1:5000
 
 ## Example Request Data
 
-See "example_data.txt" for example request data.
+See `example_data.txt` for example request data.
 
 ## Testing
+
+### Automated Unit Tests
+
+Automated unit tests have been added in the `tests/` folder. These tests use Python's `unittest` framework and Flask's test client to check expected API behavior.
+
+The test files include:
+
+```text
+tests/test_admin.py
+tests/test_customer.py
+tests/test_inventory.py
+tests/test_mechanics.py
+tests/test_service_tickets.py
+```
+
+The tests cover successful and unsuccessful route behavior for admin login, customer routes, mechanic routes, inventory routes, service ticket routes, authentication requirements, and validation errors.
+
+To run the automated tests:
+
+```bash
+python -m unittest discover -s tests
+```
+
+### Postman Testing
 
 A Postman collection is included:
 
@@ -248,7 +303,7 @@ A Postman collection is included:
 Mechanic_Shop.postman_collection.json
 ```
 
-Import this file into Postman to test the API endpoints.
+Import this file into Postman to test the API endpoints manually.
 
 ## Author
 
