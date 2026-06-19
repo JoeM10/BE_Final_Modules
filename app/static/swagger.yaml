@@ -34,16 +34,16 @@ paths:
           name: "body"
           required: true
           schema:
-            $ref: "#/definitions/LoginRequest"
+            $ref: "#/definitions/LoginPayload"
       responses:
         200:
           description: "Admin logged in successfully."
           schema:
-            $ref: "#/definitions/AuthResponse"
+            $ref: "#/definitions/LoginResponse"
         400:
           description: "Validation error."
           schema:
-            $ref: "#/definitions/ValidationError"
+            $ref: "#/definitions/ValidationErrorResponse"
         401:
           description: "Invalid email or password."
           schema:
@@ -59,16 +59,16 @@ paths:
           name: "body"
           required: true
           schema:
-            $ref: "#/definitions/LoginRequest"
+            $ref: "#/definitions/LoginPayload"
       responses:
         200:
           description: "Customer logged in successfully."
           schema:
-            $ref: "#/definitions/AuthResponse"
+            $ref: "#/definitions/LoginResponse"
         400:
           description: "Validation error."
           schema:
-            $ref: "#/definitions/ValidationError"
+            $ref: "#/definitions/ValidationErrorResponse"
 
   /customers/:
     post:
@@ -80,12 +80,12 @@ paths:
           name: "body"
           required: true
           schema:
-            $ref: "#/definitions/CustomerInput"
+            $ref: "#/definitions/CustomerPayload"
       responses:
         201:
           description: "Customer created."
           schema:
-            $ref: "#/definitions/Customer"
+            $ref: "#/definitions/CustomerResponse"
         400:
           description: "Validation error or duplicate email."
           schema:
@@ -103,9 +103,7 @@ paths:
         200:
           description: "List of customers."
           schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/Customer"
+            $ref: "#/definitions/CustomersResponse"
         401:
           description: "Missing or invalid token."
           schema:
@@ -126,11 +124,13 @@ paths:
         200:
           description: "Customer service tickets."
           schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/ServiceTicket"
+            $ref: "#/definitions/ServiceTicketsResponse"
         401:
           description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
           schema:
             $ref: "#/definitions/ErrorResponse"
         404:
@@ -150,18 +150,22 @@ paths:
           name: "body"
           required: true
           schema:
-            $ref: "#/definitions/CustomerUpdate"
+            $ref: "#/definitions/CustomerUpdatePayload"
       responses:
         200:
           description: "Updated customer."
           schema:
-            $ref: "#/definitions/Customer"
+            $ref: "#/definitions/CustomerResponse"
         400:
           description: "Validation error or duplicate email/phone."
           schema:
             $ref: "#/definitions/ErrorResponse"
         401:
           description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
           schema:
             $ref: "#/definitions/ErrorResponse"
         404:
@@ -183,6 +187,10 @@ paths:
             $ref: "#/definitions/MessageResponse"
         401:
           description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
           schema:
             $ref: "#/definitions/ErrorResponse"
         404:
@@ -207,9 +215,13 @@ paths:
         200:
           description: "Customer found."
           schema:
-            $ref: "#/definitions/Customer"
+            $ref: "#/definitions/CustomerResponse"
         401:
           description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
           schema:
             $ref: "#/definitions/ErrorResponse"
         404:
@@ -228,18 +240,22 @@ paths:
           name: "body"
           required: true
           schema:
-            $ref: "#/definitions/CustomerUpdate"
+            $ref: "#/definitions/CustomerUpdatePayload"
       responses:
         200:
           description: "Updated customer."
           schema:
-            $ref: "#/definitions/Customer"
+            $ref: "#/definitions/CustomerResponse"
         400:
           description: "Validation error or duplicate email/phone."
           schema:
             $ref: "#/definitions/ErrorResponse"
         401:
           description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
           schema:
             $ref: "#/definitions/ErrorResponse"
         404:
@@ -263,6 +279,10 @@ paths:
           description: "Missing or invalid token."
           schema:
             $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
         404:
           description: "Customer not found."
           schema:
@@ -282,16 +302,16 @@ paths:
           name: "body"
           required: true
           schema:
-            $ref: "#/definitions/LoginRequest"
+            $ref: "#/definitions/LoginPayload"
       responses:
         200:
           description: "Mechanic logged in successfully."
           schema:
-            $ref: "#/definitions/AuthResponse"
+            $ref: "#/definitions/LoginResponse"
         400:
           description: "Validation error."
           schema:
-            $ref: "#/definitions/ValidationError"
+            $ref: "#/definitions/ValidationErrorResponse"
         401:
           description: "Invalid email or password."
           schema:
@@ -309,18 +329,22 @@ paths:
           name: "body"
           required: true
           schema:
-            $ref: "#/definitions/MechanicInput"
+            $ref: "#/definitions/MechanicPayload"
       responses:
         201:
           description: "Mechanic created."
           schema:
-            $ref: "#/definitions/Mechanic"
+            $ref: "#/definitions/MechanicResponse"
         400:
           description: "Validation error or duplicate email."
           schema:
             $ref: "#/definitions/ErrorResponse"
         401:
           description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
           schema:
             $ref: "#/definitions/ErrorResponse"
     get:
@@ -336,11 +360,13 @@ paths:
         200:
           description: "List of mechanics."
           schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/Mechanic"
+            $ref: "#/definitions/MechanicsResponse"
         401:
           description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
           schema:
             $ref: "#/definitions/ErrorResponse"
 
@@ -355,11 +381,13 @@ paths:
         200:
           description: "Mechanics sorted by ticket count."
           schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/Mechanic"
+            $ref: "#/definitions/MechanicsResponse"
         401:
           description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
           schema:
             $ref: "#/definitions/ErrorResponse"
 
@@ -376,9 +404,13 @@ paths:
         200:
           description: "Mechanic found."
           schema:
-            $ref: "#/definitions/Mechanic"
+            $ref: "#/definitions/MechanicResponse"
         401:
           description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
           schema:
             $ref: "#/definitions/ErrorResponse"
         404:
@@ -397,18 +429,22 @@ paths:
           name: "body"
           required: true
           schema:
-            $ref: "#/definitions/MechanicUpdate"
+            $ref: "#/definitions/MechanicUpdatePayload"
       responses:
         200:
           description: "Updated mechanic."
           schema:
-            $ref: "#/definitions/Mechanic"
+            $ref: "#/definitions/MechanicResponse"
         400:
           description: "Validation error."
           schema:
-            $ref: "#/definitions/ValidationError"
+            $ref: "#/definitions/ValidationErrorResponse"
         401:
           description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
           schema:
             $ref: "#/definitions/ErrorResponse"
         404:
@@ -432,6 +468,10 @@ paths:
           description: "Missing or invalid token."
           schema:
             $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
         404:
           description: "Mechanic not found."
           schema:
@@ -449,18 +489,22 @@ paths:
           name: "body"
           required: true
           schema:
-            $ref: "#/definitions/InventoryInput"
+            $ref: "#/definitions/InventoryPayload"
       responses:
         201:
           description: "Inventory item created."
           schema:
-            $ref: "#/definitions/Inventory"
+            $ref: "#/definitions/InventoryResponse"
         400:
           description: "Validation error."
           schema:
-            $ref: "#/definitions/ValidationError"
+            $ref: "#/definitions/ValidationErrorResponse"
         401:
           description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
           schema:
             $ref: "#/definitions/ErrorResponse"
     get:
@@ -476,11 +520,13 @@ paths:
         200:
           description: "List of inventory items."
           schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/Inventory"
+            $ref: "#/definitions/InventoryItemsResponse"
         401:
           description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
           schema:
             $ref: "#/definitions/ErrorResponse"
 
@@ -497,9 +543,13 @@ paths:
         200:
           description: "Inventory item found."
           schema:
-            $ref: "#/definitions/Inventory"
+            $ref: "#/definitions/InventoryResponse"
         401:
           description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
           schema:
             $ref: "#/definitions/ErrorResponse"
         404:
@@ -518,18 +568,22 @@ paths:
           name: "body"
           required: true
           schema:
-            $ref: "#/definitions/InventoryUpdate"
+            $ref: "#/definitions/InventoryUpdatePayload"
       responses:
         200:
           description: "Updated inventory item."
           schema:
-            $ref: "#/definitions/Inventory"
+            $ref: "#/definitions/InventoryResponse"
         400:
           description: "Validation error."
           schema:
-            $ref: "#/definitions/ValidationError"
+            $ref: "#/definitions/ValidationErrorResponse"
         401:
           description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
           schema:
             $ref: "#/definitions/ErrorResponse"
         404:
@@ -553,6 +607,10 @@ paths:
           description: "Missing or invalid token."
           schema:
             $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
         404:
           description: "Item not found."
           schema:
@@ -570,18 +628,22 @@ paths:
           name: "body"
           required: true
           schema:
-            $ref: "#/definitions/ServiceTicketInput"
+            $ref: "#/definitions/ServiceTicketPayload"
       responses:
         201:
           description: "Service ticket created."
           schema:
-            $ref: "#/definitions/ServiceTicket"
+            $ref: "#/definitions/ServiceTicketResponse"
         400:
           description: "Validation error."
           schema:
-            $ref: "#/definitions/ValidationError"
+            $ref: "#/definitions/ValidationErrorResponse"
         401:
           description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
           schema:
             $ref: "#/definitions/ErrorResponse"
         404:
@@ -601,11 +663,13 @@ paths:
         200:
           description: "List of service tickets."
           schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/ServiceTicket"
+            $ref: "#/definitions/ServiceTicketsResponse"
         401:
           description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
           schema:
             $ref: "#/definitions/ErrorResponse"
 
@@ -622,9 +686,13 @@ paths:
         200:
           description: "Service ticket found."
           schema:
-            $ref: "#/definitions/ServiceTicket"
+            $ref: "#/definitions/ServiceTicketResponse"
         401:
           description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
           schema:
             $ref: "#/definitions/ErrorResponse"
         404:
@@ -648,6 +716,10 @@ paths:
           description: "Missing or invalid token."
           schema:
             $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
         404:
           description: "Service ticket not found."
           schema:
@@ -666,18 +738,22 @@ paths:
           name: "body"
           required: true
           schema:
-            $ref: "#/definitions/ServiceTicketMechanicEdit"
+            $ref: "#/definitions/ServiceTicketMechanicEditPayload"
       responses:
         200:
           description: "Updated service ticket."
           schema:
-            $ref: "#/definitions/ServiceTicket"
+            $ref: "#/definitions/ServiceTicketResponse"
         400:
           description: "Validation error."
           schema:
-            $ref: "#/definitions/ValidationError"
+            $ref: "#/definitions/ValidationErrorResponse"
         401:
           description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
           schema:
             $ref: "#/definitions/ErrorResponse"
         404:
@@ -698,18 +774,22 @@ paths:
           name: "body"
           required: true
           schema:
-            $ref: "#/definitions/TicketPartInput"
+            $ref: "#/definitions/TicketPartPayload"
       responses:
         200:
           description: "Updated service ticket."
           schema:
-            $ref: "#/definitions/ServiceTicket"
+            $ref: "#/definitions/ServiceTicketResponse"
         400:
           description: "Validation error or invalid quantity."
           schema:
             $ref: "#/definitions/ErrorResponse"
         401:
           description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
           schema:
             $ref: "#/definitions/ErrorResponse"
         404:
@@ -731,18 +811,22 @@ paths:
           name: "body"
           required: true
           schema:
-            $ref: "#/definitions/TicketPartQuantityUpdate"
+            $ref: "#/definitions/TicketPartQuantityUpdatePayload"
       responses:
         200:
           description: "Updated service ticket."
           schema:
-            $ref: "#/definitions/ServiceTicket"
+            $ref: "#/definitions/ServiceTicketResponse"
         400:
           description: "Missing or invalid part quantity."
           schema:
             $ref: "#/definitions/ErrorResponse"
         401:
           description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
           schema:
             $ref: "#/definitions/ErrorResponse"
         404:
@@ -762,9 +846,13 @@ paths:
         200:
           description: "Updated service ticket."
           schema:
-            $ref: "#/definitions/ServiceTicket"
+            $ref: "#/definitions/ServiceTicketResponse"
         401:
           description: "Missing or invalid token."
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        403:
+          description: "Insufficient role."
           schema:
             $ref: "#/definitions/ErrorResponse"
         404:
@@ -805,7 +893,7 @@ parameters:
     format: "int32"
 
 definitions:
-  LoginRequest:
+  LoginPayload:
     type: "object"
     required:
       - "email"
@@ -820,7 +908,7 @@ definitions:
         format: "password"
         example: "password123"
 
-  AuthResponse:
+  LoginResponse:
     type: "object"
     properties:
       status:
@@ -833,7 +921,7 @@ definitions:
         type: "string"
         example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 
-  CustomerInput:
+  CustomerPayload:
     type: "object"
     required:
       - "name"
@@ -856,7 +944,7 @@ definitions:
         format: "password"
         example: "password123"
 
-  CustomerUpdate:
+  CustomerUpdatePayload:
     type: "object"
     properties:
       name:
@@ -894,7 +982,16 @@ definitions:
         type: "string"
         example: "password123"
 
-  MechanicInput:
+  CustomerResponse:
+    allOf:
+      - $ref: "#/definitions/Customer"
+
+  CustomersResponse:
+    type: "array"
+    items:
+      $ref: "#/definitions/Customer"
+
+  MechanicPayload:
     type: "object"
     required:
       - "name"
@@ -922,7 +1019,7 @@ definitions:
         format: "password"
         example: "password123"
 
-  MechanicUpdate:
+  MechanicUpdatePayload:
     type: "object"
     properties:
       name:
@@ -969,6 +1066,15 @@ definitions:
         items:
           $ref: "#/definitions/MechanicServiceTicket"
 
+  MechanicResponse:
+    allOf:
+      - $ref: "#/definitions/Mechanic"
+
+  MechanicsResponse:
+    type: "array"
+    items:
+      $ref: "#/definitions/Mechanic"
+
   MechanicSummary:
     type: "object"
     properties:
@@ -999,7 +1105,7 @@ definitions:
         type: "integer"
         example: 1
 
-  InventoryInput:
+  InventoryPayload:
     type: "object"
     required:
       - "item_name"
@@ -1013,7 +1119,7 @@ definitions:
         format: "float"
         example: 19.99
 
-  InventoryUpdate:
+  InventoryUpdatePayload:
     type: "object"
     properties:
       item_name:
@@ -1042,6 +1148,15 @@ definitions:
         items:
           $ref: "#/definitions/PartAssignedToTicket"
 
+  InventoryResponse:
+    allOf:
+      - $ref: "#/definitions/Inventory"
+
+  InventoryItemsResponse:
+    type: "array"
+    items:
+      $ref: "#/definitions/Inventory"
+
   InventorySummary:
     type: "object"
     properties:
@@ -1066,7 +1181,7 @@ definitions:
         type: "integer"
         example: 2
 
-  ServiceTicketInput:
+  ServiceTicketPayload:
     type: "object"
     required:
       - "VIN"
@@ -1116,7 +1231,16 @@ definitions:
         items:
           $ref: "#/definitions/PartUsed"
 
-  ServiceTicketMechanicEdit:
+  ServiceTicketResponse:
+    allOf:
+      - $ref: "#/definitions/ServiceTicket"
+
+  ServiceTicketsResponse:
+    type: "array"
+    items:
+      $ref: "#/definitions/ServiceTicket"
+
+  ServiceTicketMechanicEditPayload:
     type: "object"
     required:
       - "add_mechanic_ids"
@@ -1136,7 +1260,7 @@ definitions:
         example:
           - 3
 
-  TicketPartInput:
+  TicketPartPayload:
     type: "object"
     required:
       - "part_id"
@@ -1149,7 +1273,7 @@ definitions:
         type: "integer"
         example: 2
 
-  TicketPartQuantityUpdate:
+  TicketPartQuantityUpdatePayload:
     type: "object"
     required:
       - "part_quantity"
@@ -1193,7 +1317,7 @@ definitions:
         type: "string"
         example: "Additional details."
 
-  ValidationError:
+  ValidationErrorResponse:
     type: "object"
     additionalProperties:
       type: "array"
