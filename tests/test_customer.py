@@ -5,8 +5,6 @@ from app import create_app
 from app.models import Customer, Service_Ticket, db
 from app.utils.util import encode_token
 
-os.environ.setdefault("PY_JOSE_TOKEN", "test-secret-key")
-
 class TestCustomer(unittest.TestCase):
     def setUp(self):
         self.app = create_app("TestingConfig")

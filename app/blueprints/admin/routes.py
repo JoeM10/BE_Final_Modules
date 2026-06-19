@@ -5,8 +5,6 @@ from . import admin_bp
 from .schemas import admin_login_schema
 from app.utils.util import encode_token
 
-
-
 @admin_bp.route("/login", methods=["POST"])
 def admin_login():
     try:
