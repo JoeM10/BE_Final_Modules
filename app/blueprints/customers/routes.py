@@ -37,7 +37,7 @@ def login():
 
         return jsonify(response), 200
     else:
-        return jsonify({"message": "Invalid email or password!"})
+        return jsonify({"message": "Invalid email or password!"}), 400
 
 # POST a new customer
 @customers_bp.route("/", methods=["POST"])
@@ -92,7 +92,7 @@ def get_customers(current_user):
         query = select(Customer)
         customers = db.session.execute(query).scalars().all()
 
-        return customers_schema.jsonify(customers)
+        return customers_schema.jsonify(customers), 200
 
 # GET a single customer by ID
 @customers_bp.route("/<int:id>", methods=["GET"])
@@ -122,7 +122,18 @@ def update_customer(current_user):
     except ValidationError as e:
         return jsonify(e.messages), 400
 
+    if "name" in data:
+        if data["name"] == "":
+            return jsonify({"error": "Name cannot be blank."}), 400
+
+    if "password" in data:
+        if data["password"] == "":
+            return jsonify({"error": "Password cannot be blank."}), 400
+
     if "email" in data:
+        if data["email"] == "":
+            return jsonify({"error": "Email cannot be blank."}), 400
+
         existing_email = db.session.execute(
             select(Customer).where(
                 Customer.email == data["email"],
@@ -134,6 +145,9 @@ def update_customer(current_user):
             return jsonify({"error": "Email already associated with an account."}), 400
 
     if "phone" in data:
+        if data["phone"] == "":
+            return jsonify({"error": "Phone cannot be blank."}), 400
+
         existing_phone = db.session.execute(
             select(Customer).where(
                 Customer.phone == data["phone"],
@@ -165,8 +179,19 @@ def mechanic_update_customer(current_user, id):
     except ValidationError as e:
         return jsonify(e.messages), 400
 
+    if "name" in data:
+        if data["name"] == "":
+            return jsonify({"error": "Name cannot be blank."}), 400
+
+    if "password" in data:
+        if data["password"] == "":
+            return jsonify({"error": "Password cannot be blank."}), 400
+
     # Prevent duplicate email when updating email
     if "email" in data:
+        if data["email"] == "":
+            return jsonify({"error": "Email cannot be blank."}), 400
+        
         existing_email = db.session.execute(
             select(Customer).where(
                 Customer.email == data["email"],
@@ -179,6 +204,9 @@ def mechanic_update_customer(current_user, id):
 
     # Prevent duplicate phone when updating phone
     if "phone" in data:
+        if data["phone"] == "":
+            return jsonify({"error": "Phone cannot be blank."}), 400
+        
         existing_phone = db.session.execute(
             select(Customer).where(
                 Customer.phone == data["phone"],
@@ -211,7 +239,7 @@ def delete_current_customer(current_user):
     if customer.tickets:
         return jsonify({
             "error": "Cannot delete customer because they have service tickets.",
-            "message": "Delete this customer's service tickets first, or keep the customer record for service history."
+            "message": "Please contact an Employee for assistance with deleting your account."
         }), 409
 
     db.session.delete(customer)
