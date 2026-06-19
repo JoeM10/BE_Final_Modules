@@ -38,6 +38,9 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
 
+    env:
+      PY_JOSE_TOKEN: test-secret-key
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
