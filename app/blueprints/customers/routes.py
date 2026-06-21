@@ -31,13 +31,13 @@ def login():
 
         response = {
             "status": "success",
-            "message": "Successfully loggin in.",
+            "message": "Successfully logged in.",
             "token": token
         }
 
         return jsonify(response), 200
     else:
-        return jsonify({"message": "Invalid email or password!"}), 400
+        return jsonify({"LoginError": "Invalid email or password!"}), 400
 
 # POST a new customer
 @customers_bp.route("/", methods=["POST"])

@@ -26,11 +26,11 @@ def mechanic_login():
 
         return jsonify({
             "status": "success",
-            "message": f"Mechanic {mechanic.name} logged in successfully",
+            "message": f"Mechanic {mechanic.name} successfully logged in.",
             "token": token
         }), 200
 
-    return jsonify({"message": "Invalid email or password."}), 401
+    return jsonify({"LoginError": "Invalid email or password."}), 401
 
 # POST a new mechanic
 @mechanics_bp.route("/", methods=["POST"])

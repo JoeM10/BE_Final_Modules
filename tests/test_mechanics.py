@@ -75,7 +75,7 @@ class TestMechanics(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json["status"], "success")
-        self.assertEqual(response.json["message"], "Mechanic test_mechanic1 logged in successfully")
+        self.assertEqual(response.json["message"], "Mechanic test_mechanic1 successfully logged in.")
         self.assertIn("token", response.json)
 
     def test_invalid_login_mechanic(self):
@@ -87,7 +87,7 @@ class TestMechanics(unittest.TestCase):
         response = self.client.post("/mechanics/login", json=credentials)
 
         self.assertEqual(response.status_code, 401)
-        self.assertEqual(response.json["message"], "Invalid email or password.")
+        self.assertEqual(response.json["LoginError"], "Invalid email or password.")
 
     def test_create_mechanic(self):
         mechanic_payload = {

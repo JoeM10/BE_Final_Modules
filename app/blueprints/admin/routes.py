@@ -26,8 +26,8 @@ def admin_login():
 
         return jsonify({
             "status": "success",
-            "message": "Admin logged in successfully.",
+            "message": "Admin successfully logged in.",
             "token": token
         }), 200
 
-    return jsonify({"message": "Invalid email or password."}), 401
+    return jsonify({"LoginError": "Invalid email or password."}), 401

@@ -25,7 +25,7 @@ class TestAdmin(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json["status"], "success")
-        self.assertEqual(response.json["message"], "Admin logged in successfully.")
+        self.assertEqual(response.json["message"], "Admin successfully logged in.")
         self.assertIn("token", response.json)
 
     def test_invalid_login_admin(self):
@@ -37,4 +37,4 @@ class TestAdmin(unittest.TestCase):
         response = self.client.post("/admin/login", json=credentials)
 
         self.assertEqual(response.status_code, 401)
-        self.assertEqual(response.json["message"], "Invalid email or password.")
+        self.assertEqual(response.json["LoginError"], "Invalid email or password.")
