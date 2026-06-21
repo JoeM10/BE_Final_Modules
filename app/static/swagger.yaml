@@ -1,1325 +1,1588 @@
 swagger: '2.0'
+
 info:
-  title: "Mechanic Shop Final Project"
-  description: "API for managing customers, mechanics, inventory, and service tickets for a mechanic shop."
-  version: "1.0.0"
-host: "be-final-modules.onrender.com"
-basePath: "/"
+  title: Mechanic Shop Final Project
+  description: API for managing customers, mechanics, inventory, and service tickets for a mechanic shop.
+  version: 1.0.0
+
+host: be-final-modules.onrender.com
+
+basePath: /
+
 schemes:
-  - "https"
+- https
+
 consumes:
-  - "application/json"
+- application/json
+
 produces:
-  - "application/json"
+- application/json
+
 securityDefinitions:
   BearerAuth:
-    type: "apiKey"
-    name: "Authorization"
-    in: "header"
-    description: "JWT authorization header. Use: Bearer <token>"
+    type: apiKey
+    name: Authorization
+    in: header
+    description: 'JWT authorization header. Use: Bearer <token>'
+
 tags:
-  - name: "Admin"
-  - name: "Customers"
-  - name: "Mechanics"
-  - name: "Inventory"
-  - name: "Service Tickets"
+- name: Admin
+- name: Customers
+- name: Mechanics
+- name: Inventory
+- name: Service Tickets
+
 paths:
+
   /admin/login:
+
     post:
+
       tags:
-        - "Admin"
-      summary: "Log in as an admin, (generates token)"
+      - Admin
+      summary: Log in as an admin and generate a token
+
       parameters:
-        - in: "body"
-          name: "body"
-          required: true
-          schema:
-            $ref: "#/definitions/LoginPayload"
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/LoginPayload'
+
       responses:
-        200:
-          description: "Admin logged in successfully."
+        '200':
+          description: Admin logged in successfully.
           schema:
-            $ref: "#/definitions/LoginResponse"
-        400:
-          description: "Validation error."
+            $ref: '#/definitions/LoginResponse'
+          examples:
+            application/json:
+              status: success
+              message: Admin logged in successfully.
+              token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+        '400':
+          description: Validation error.
           schema:
-            $ref: "#/definitions/ValidationErrorResponse"
-        401:
-          description: "Invalid email or password."
+            $ref: '#/definitions/ValidationErrorResponse'
+
+        '401':
+          description: Invalid email or password.
           schema:
-            $ref: "#/definitions/MessageResponse"
+            $ref: '#/definitions/AdminLoginErrorResponse'
+          examples:
+            application/json:
+              message: Invalid email or password.
 
   /customers/login:
+
     post:
+
       tags:
-        - "Customers"
-      summary: "Log in as a customer, (generates token)"
+      - Customers
+      summary: Log in as a customer and generate a token
+
       parameters:
-        - in: "body"
-          name: "body"
-          required: true
-          schema:
-            $ref: "#/definitions/LoginPayload"
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/LoginPayload'
+
       responses:
-        200:
-          description: "Customer logged in successfully."
+        '200':
+          description: Successfully loggin in.
           schema:
-            $ref: "#/definitions/LoginResponse"
-        400:
-          description: "Validation error."
+            $ref: '#/definitions/LoginResponse'
+          examples:
+            application/json:
+              status: success
+              message: Successfully loggin in.
+              token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+        '400':
+          description: "Validation error or invalid email/password. Invalid credentials return: Invalid email or password!"
           schema:
-            $ref: "#/definitions/ValidationErrorResponse"
+            $ref: '#/definitions/CustomerLoginErrorResponse'
+          examples:
+            application/json:
+              message: "Invalid email or password!"
 
   /customers/:
+
     post:
+
       tags:
-        - "Customers"
-      summary: "Create a customer account"
+      - Customers
+      summary: Create a customer account
+
       parameters:
-        - in: "body"
-          name: "body"
-          required: true
-          schema:
-            $ref: "#/definitions/CustomerPayload"
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/CustomerPayload'
+
       responses:
-        201:
-          description: "Customer created."
+        '201':
+          description: Customer created.
           schema:
-            $ref: "#/definitions/CustomerResponse"
-        400:
-          description: "Validation error or duplicate email."
+            $ref: '#/definitions/CustomerResponse'
+        '400':
+          description: Validation error or duplicate email.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
+
     get:
+
       tags:
-        - "Customers"
-      summary: "Get all customers"
+      - Customers
+      summary: Get all customers
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       parameters:
-        - $ref: "#/parameters/PageParam"
-        - $ref: "#/parameters/PerPageParam"
+      - $ref: '#/parameters/PageParam'
+      - $ref: '#/parameters/PerPageParam'
+
       responses:
-        200:
-          description: "List of customers."
+        '200':
+          description: List of customers.
           schema:
-            $ref: "#/definitions/CustomersResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/CustomersResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
 
   /customers/my-tickets:
+
     get:
+
       tags:
-        - "Customers"
-      summary: "Get service tickets for the logged-in customer"
+      - Customers
+      summary: Get service tickets for the logged-in customer
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       responses:
-        200:
-          description: "Customer service tickets."
+        '200':
+          description: Customer service tickets.
           schema:
-            $ref: "#/definitions/ServiceTicketsResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/ServiceTicketsResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        404:
-          description: "Customer not found."
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Customer not found.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
 
   /customers/update_account:
+
     put:
+
       tags:
-        - "Customers"
-      summary: "Update the logged-in customer account"
+      - Customers
+      summary: Update the logged-in customer account
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       parameters:
-        - in: "body"
-          name: "body"
-          required: true
-          schema:
-            $ref: "#/definitions/CustomerUpdatePayload"
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/CustomerUpdatePayload'
+
       responses:
-        200:
-          description: "Updated customer."
+        '200':
+          description: Updated customer.
           schema:
-            $ref: "#/definitions/CustomerResponse"
-        400:
-          description: "Validation error or duplicate email/phone."
+            $ref: '#/definitions/CustomerResponse'
+        '400':
+          description: Validation error or duplicate email/phone.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        404:
-          description: "Customer not found."
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Customer not found.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
 
   /customers/delete_account:
+
     delete:
+
       tags:
-        - "Customers"
-      summary: "Delete the logged-in customer account"
+      - Customers
+      summary: Delete the logged-in customer account
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       responses:
-        200:
-          description: "Customer deleted."
+        '200':
+          description: Customer deleted.
           schema:
-            $ref: "#/definitions/MessageResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/MessageResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        404:
-          description: "Customer not found."
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Customer not found.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        409:
-          description: "Customer has service tickets and cannot be deleted."
+            $ref: '#/definitions/ErrorResponse'
+        '409':
+          description: Customer has service tickets and cannot be deleted.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
 
   /customers/{id}:
+
     get:
+
       tags:
-        - "Customers"
-      summary: "Get one customer by ID"
+      - Customers
+      summary: Get one customer by ID
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       parameters:
-        - $ref: "#/parameters/IdPathParam"
+      - $ref: '#/parameters/IdPathParam'
+
       responses:
-        200:
-          description: "Customer found."
+        '200':
+          description: Customer found.
           schema:
-            $ref: "#/definitions/CustomerResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/CustomerResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        404:
-          description: "Customer not found."
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Customer not found.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
+
     put:
+
       tags:
-        - "Customers"
-      summary: "Update one customer by ID"
+      - Customers
+      summary: Update one customer by ID
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       parameters:
-        - $ref: "#/parameters/IdPathParam"
-        - in: "body"
-          name: "body"
-          required: true
-          schema:
-            $ref: "#/definitions/CustomerUpdatePayload"
+      - $ref: '#/parameters/IdPathParam'
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/CustomerUpdatePayload'
+
       responses:
-        200:
-          description: "Updated customer."
+        '200':
+          description: Updated customer.
           schema:
-            $ref: "#/definitions/CustomerResponse"
-        400:
-          description: "Validation error or duplicate email/phone."
+            $ref: '#/definitions/CustomerResponse'
+        '400':
+          description: Validation error or duplicate email/phone.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        404:
-          description: "Customer not found."
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Customer not found.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
+
     delete:
+
       tags:
-        - "Customers"
-      summary: "Delete one customer by ID"
+      - Customers
+      summary: Delete one customer by ID
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       parameters:
-        - $ref: "#/parameters/IdPathParam"
+      - $ref: '#/parameters/IdPathParam'
+
       responses:
-        200:
-          description: "Customer deleted."
+        '200':
+          description: Customer deleted.
           schema:
-            $ref: "#/definitions/MessageResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/MessageResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        404:
-          description: "Customer not found."
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Customer not found.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        409:
-          description: "Customer has service tickets and cannot be deleted."
+            $ref: '#/definitions/ErrorResponse'
+        '409':
+          description: Customer has service tickets and cannot be deleted.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
 
   /mechanics/login:
+
     post:
+
       tags:
-        - "Mechanics"
-      summary: "Log in as a mechanic, (generates token)"
+      - Mechanics
+      summary: Log in as a mechanic and generate a token
+
       parameters:
-        - in: "body"
-          name: "body"
-          required: true
-          schema:
-            $ref: "#/definitions/LoginPayload"
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/LoginPayload'
+
       responses:
-        200:
-          description: "Mechanic logged in successfully."
+        '200':
+          description: Mechanic logged in successfully.
           schema:
-            $ref: "#/definitions/LoginResponse"
-        400:
-          description: "Validation error."
+            $ref: '#/definitions/LoginResponse'
+          examples:
+            application/json:
+              status: success
+              message: Mechanic Jane Driver logged in successfully
+              token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+        '400':
+          description: Validation error.
           schema:
-            $ref: "#/definitions/ValidationErrorResponse"
-        401:
-          description: "Invalid email or password."
+            $ref: '#/definitions/ValidationErrorResponse'
+
+        '401':
+          description: Invalid email or password.
           schema:
-            $ref: "#/definitions/MessageResponse"
+            $ref: '#/definitions/MechanicLoginErrorResponse'
+          examples:
+            application/json:
+              message: Invalid email or password.
 
   /mechanics/:
+
     post:
+
       tags:
-        - "Mechanics"
-      summary: "Create a mechanic"
+      - Mechanics
+      summary: Create a mechanic
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       parameters:
-        - in: "body"
-          name: "body"
-          required: true
-          schema:
-            $ref: "#/definitions/MechanicPayload"
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/MechanicPayload'
+
       responses:
-        201:
-          description: "Mechanic created."
+        '201':
+          description: Mechanic created.
           schema:
-            $ref: "#/definitions/MechanicResponse"
-        400:
-          description: "Validation error or duplicate email."
+            $ref: '#/definitions/MechanicResponse'
+        '400':
+          description: Validation error or duplicate email.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
+
     get:
+
       tags:
-        - "Mechanics"
-      summary: "Get all mechanics"
+      - Mechanics
+      summary: Get all mechanics
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       parameters:
-        - $ref: "#/parameters/PageParam"
-        - $ref: "#/parameters/PerPageParam"
+      - $ref: '#/parameters/PageParam'
+      - $ref: '#/parameters/PerPageParam'
+
       responses:
-        200:
-          description: "List of mechanics."
+        '200':
+          description: List of mechanics.
           schema:
-            $ref: "#/definitions/MechanicsResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/MechanicsResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
 
   /mechanics/total_tickets:
+
     get:
+
       tags:
-        - "Mechanics"
-      summary: "Get mechanics sorted by number of assigned service tickets"
+      - Mechanics
+      summary: Get mechanics sorted by number of assigned service tickets
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       responses:
-        200:
-          description: "Mechanics sorted by ticket count."
+        '200':
+          description: Mechanics sorted by ticket count.
           schema:
-            $ref: "#/definitions/MechanicsResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/MechanicsResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
 
   /mechanics/{id}:
+
     get:
+
       tags:
-        - "Mechanics"
-      summary: "Get one mechanic by ID"
+      - Mechanics
+      summary: Get one mechanic by ID
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       parameters:
-        - $ref: "#/parameters/IdPathParam"
+      - $ref: '#/parameters/IdPathParam'
+
       responses:
-        200:
-          description: "Mechanic found."
+        '200':
+          description: Mechanic found.
           schema:
-            $ref: "#/definitions/MechanicResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/MechanicResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        404:
-          description: "Mechanic not found."
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Mechanic not found.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
+
     put:
+
       tags:
-        - "Mechanics"
-      summary: "Update one mechanic by ID"
+      - Mechanics
+      summary: Update one mechanic by ID
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       parameters:
-        - $ref: "#/parameters/IdPathParam"
-        - in: "body"
-          name: "body"
-          required: true
-          schema:
-            $ref: "#/definitions/MechanicUpdatePayload"
+      - $ref: '#/parameters/IdPathParam'
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/MechanicUpdatePayload'
+
       responses:
-        200:
-          description: "Updated mechanic."
+        '200':
+          description: Updated mechanic.
           schema:
-            $ref: "#/definitions/MechanicResponse"
-        400:
-          description: "Validation error."
+            $ref: '#/definitions/MechanicResponse'
+        '400':
+          description: Validation error.
           schema:
-            $ref: "#/definitions/ValidationErrorResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/ValidationErrorResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        404:
-          description: "Mechanic not found."
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Mechanic not found.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
+
     delete:
+
       tags:
-        - "Mechanics"
-      summary: "Delete one mechanic by ID"
+      - Mechanics
+      summary: Delete one mechanic by ID
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       parameters:
-        - $ref: "#/parameters/IdPathParam"
+      - $ref: '#/parameters/IdPathParam'
+
       responses:
-        200:
-          description: "Mechanic deleted."
+        '200':
+          description: Mechanic deleted.
           schema:
-            $ref: "#/definitions/MessageResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/MessageResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        404:
-          description: "Mechanic not found."
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Mechanic not found.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
 
   /inventory/:
+
     post:
+
       tags:
-        - "Inventory"
-      summary: "Create an inventory item"
+      - Inventory
+      summary: Create an inventory item
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       parameters:
-        - in: "body"
-          name: "body"
-          required: true
-          schema:
-            $ref: "#/definitions/InventoryPayload"
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/InventoryPayload'
+
       responses:
-        201:
-          description: "Inventory item created."
+        '201':
+          description: Inventory item created.
           schema:
-            $ref: "#/definitions/InventoryResponse"
-        400:
-          description: "Validation error."
+            $ref: '#/definitions/InventoryResponse'
+        '400':
+          description: Validation error.
           schema:
-            $ref: "#/definitions/ValidationErrorResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/ValidationErrorResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
+
     get:
+
       tags:
-        - "Inventory"
-      summary: "Get all inventory items"
+      - Inventory
+      summary: Get all inventory items
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       parameters:
-        - $ref: "#/parameters/PageParam"
-        - $ref: "#/parameters/PerPageParam"
+      - $ref: '#/parameters/PageParam'
+      - $ref: '#/parameters/PerPageParam'
+
       responses:
-        200:
-          description: "List of inventory items."
+        '200':
+          description: List of inventory items.
           schema:
-            $ref: "#/definitions/InventoryItemsResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/InventoryItemsResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
 
   /inventory/{id}:
+
     get:
+
       tags:
-        - "Inventory"
-      summary: "Get one inventory item by ID"
+      - Inventory
+      summary: Get one inventory item by ID
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       parameters:
-        - $ref: "#/parameters/IdPathParam"
+      - $ref: '#/parameters/IdPathParam'
+
       responses:
-        200:
-          description: "Inventory item found."
+        '200':
+          description: Inventory item found.
           schema:
-            $ref: "#/definitions/InventoryResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/InventoryResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        404:
-          description: "Item not found."
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Item not found.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
+
     put:
+
       tags:
-        - "Inventory"
-      summary: "Update one inventory item by ID"
+      - Inventory
+      summary: Update one inventory item by ID
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       parameters:
-        - $ref: "#/parameters/IdPathParam"
-        - in: "body"
-          name: "body"
-          required: true
-          schema:
-            $ref: "#/definitions/InventoryUpdatePayload"
+      - $ref: '#/parameters/IdPathParam'
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/InventoryUpdatePayload'
+
       responses:
-        200:
-          description: "Updated inventory item."
+        '200':
+          description: Updated inventory item.
           schema:
-            $ref: "#/definitions/InventoryResponse"
-        400:
-          description: "Validation error."
+            $ref: '#/definitions/InventoryResponse'
+        '400':
+          description: Validation error.
           schema:
-            $ref: "#/definitions/ValidationErrorResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/ValidationErrorResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        404:
-          description: "Item not found."
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Item not found.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
+
     delete:
+
       tags:
-        - "Inventory"
-      summary: "Delete one inventory item by ID"
+      - Inventory
+      summary: Delete one inventory item by ID
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       parameters:
-        - $ref: "#/parameters/IdPathParam"
+      - $ref: '#/parameters/IdPathParam'
+
       responses:
-        200:
-          description: "Inventory item deleted."
+        '200':
+          description: Inventory item deleted.
           schema:
-            $ref: "#/definitions/MessageResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/MessageResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        404:
-          description: "Item not found."
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Item not found.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
 
   /service-tickets/:
+
     post:
+
       tags:
-        - "Service Tickets"
-      summary: "Create a service ticket"
+      - Service Tickets
+      summary: Create a service ticket
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       parameters:
-        - in: "body"
-          name: "body"
-          required: true
-          schema:
-            $ref: "#/definitions/ServiceTicketPayload"
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ServiceTicketPayload'
+
       responses:
-        201:
-          description: "Service ticket created."
+        '201':
+          description: Service ticket created.
           schema:
-            $ref: "#/definitions/ServiceTicketResponse"
-        400:
-          description: "Validation error."
+            $ref: '#/definitions/ServiceTicketResponse'
+        '400':
+          description: Validation error.
           schema:
-            $ref: "#/definitions/ValidationErrorResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/ValidationErrorResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        404:
-          description: "Customer not found."
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Customer not found.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
+
     get:
+
       tags:
-        - "Service Tickets"
-      summary: "Get all service tickets"
+      - Service Tickets
+      summary: Get all service tickets
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       parameters:
-        - $ref: "#/parameters/PageParam"
-        - $ref: "#/parameters/PerPageParam"
+      - $ref: '#/parameters/PageParam'
+      - $ref: '#/parameters/PerPageParam'
+
       responses:
-        200:
-          description: "List of service tickets."
+        '200':
+          description: List of service tickets.
           schema:
-            $ref: "#/definitions/ServiceTicketsResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/ServiceTicketsResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
 
   /service-tickets/{id}:
+
     get:
+
       tags:
-        - "Service Tickets"
-      summary: "Get one service ticket by ID"
+      - Service Tickets
+      summary: Get one service ticket by ID
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       parameters:
-        - $ref: "#/parameters/IdPathParam"
+      - $ref: '#/parameters/IdPathParam'
+
       responses:
-        200:
-          description: "Service ticket found."
+        '200':
+          description: Service ticket found.
           schema:
-            $ref: "#/definitions/ServiceTicketResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/ServiceTicketResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        404:
-          description: "Service ticket not found."
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Service ticket not found.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
+
     delete:
+
       tags:
-        - "Service Tickets"
-      summary: "Delete one service ticket by ID"
+      - Service Tickets
+      summary: Delete one service ticket by ID
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       parameters:
-        - $ref: "#/parameters/IdPathParam"
+      - $ref: '#/parameters/IdPathParam'
+
       responses:
-        200:
-          description: "Service ticket deleted."
+        '200':
+          description: Service ticket deleted.
           schema:
-            $ref: "#/definitions/MessageResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/MessageResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        404:
-          description: "Service ticket not found."
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Service ticket not found.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
 
   /service-tickets/{id}/edit:
+
     put:
+
       tags:
-        - "Service Tickets"
-      summary: "Add or remove mechanics assigned to a service ticket"
+      - Service Tickets
+      summary: Add or remove mechanics assigned to a service ticket
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       parameters:
-        - $ref: "#/parameters/IdPathParam"
-        - in: "body"
-          name: "body"
-          required: true
-          schema:
-            $ref: "#/definitions/ServiceTicketMechanicEditPayload"
+      - $ref: '#/parameters/IdPathParam'
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/ServiceTicketMechanicEditPayload'
+
       responses:
-        200:
-          description: "Updated service ticket."
+        '200':
+          description: Updated service ticket.
           schema:
-            $ref: "#/definitions/ServiceTicketResponse"
-        400:
-          description: "Validation error."
+            $ref: '#/definitions/ServiceTicketResponse'
+        '400':
+          description: Validation error.
           schema:
-            $ref: "#/definitions/ValidationErrorResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/ValidationErrorResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        404:
-          description: "Service ticket not found."
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Service ticket not found.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
 
   /service-tickets/{ticket_id}/parts:
+
     post:
+
       tags:
-        - "Service Tickets"
-      summary: "Add an inventory part to a service ticket"
+      - Service Tickets
+      summary: Add an inventory part to a service ticket
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       parameters:
-        - $ref: "#/parameters/TicketIdPathParam"
-        - in: "body"
-          name: "body"
-          required: true
-          schema:
-            $ref: "#/definitions/TicketPartPayload"
+      - $ref: '#/parameters/TicketIdPathParam'
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/TicketPartPayload'
+
       responses:
-        200:
-          description: "Updated service ticket."
+        '200':
+          description: Updated service ticket.
           schema:
-            $ref: "#/definitions/ServiceTicketResponse"
-        400:
-          description: "Validation error or invalid quantity."
+            $ref: '#/definitions/ServiceTicketResponse'
+        '400':
+          description: Validation error or invalid quantity.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        404:
-          description: "Service ticket or inventory part not found."
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Service ticket or inventory part not found.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
 
   /service-tickets/{ticket_id}/parts/{part_id}:
+
     put:
+
       tags:
-        - "Service Tickets"
-      summary: "Update a part quantity on a service ticket"
+      - Service Tickets
+      summary: Update a part quantity on a service ticket
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       parameters:
-        - $ref: "#/parameters/TicketIdPathParam"
-        - $ref: "#/parameters/PartIdPathParam"
-        - in: "body"
-          name: "body"
-          required: true
-          schema:
-            $ref: "#/definitions/TicketPartQuantityUpdatePayload"
+      - $ref: '#/parameters/TicketIdPathParam'
+      - $ref: '#/parameters/PartIdPathParam'
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/TicketPartQuantityUpdatePayload'
+
       responses:
-        200:
-          description: "Updated service ticket."
+        '200':
+          description: Updated service ticket.
           schema:
-            $ref: "#/definitions/ServiceTicketResponse"
-        400:
-          description: "Missing or invalid part quantity."
+            $ref: '#/definitions/ServiceTicketResponse'
+        '400':
+          description: Missing or invalid part quantity.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/ErrorResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        404:
-          description: "Part is not assigned to this service ticket."
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Part is not assigned to this service ticket.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
+
     delete:
+
       tags:
-        - "Service Tickets"
-      summary: "Remove a part from a service ticket"
+      - Service Tickets
+      summary: Remove a part from a service ticket
+
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+
       parameters:
-        - $ref: "#/parameters/TicketIdPathParam"
-        - $ref: "#/parameters/PartIdPathParam"
+      - $ref: '#/parameters/TicketIdPathParam'
+      - $ref: '#/parameters/PartIdPathParam'
+
       responses:
-        200:
-          description: "Updated service ticket."
+        '200':
+          description: Updated service ticket.
           schema:
-            $ref: "#/definitions/ServiceTicketResponse"
-        401:
-          description: "Missing or invalid token."
+            $ref: '#/definitions/ServiceTicketResponse'
+        '401':
+          description: Missing or invalid token.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        403:
-          description: "Insufficient role."
+            $ref: '#/definitions/ErrorResponse'
+        '403':
+          description: Insufficient role.
           schema:
-            $ref: "#/definitions/ErrorResponse"
-        404:
-          description: "Part is not assigned to this service ticket."
+            $ref: '#/definitions/ErrorResponse'
+        '404':
+          description: Part is not assigned to this service ticket.
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: '#/definitions/ErrorResponse'
 
 parameters:
   IdPathParam:
-    name: "id"
-    in: "path"
+    name: id
+    in: path
     required: true
-    type: "integer"
-    format: "int32"
+    type: integer
+    format: int32
+
   TicketIdPathParam:
-    name: "ticket_id"
-    in: "path"
+    name: ticket_id
+    in: path
     required: true
-    type: "integer"
-    format: "int32"
+    type: integer
+    format: int32
+
   PartIdPathParam:
-    name: "part_id"
-    in: "path"
+    name: part_id
+    in: path
     required: true
-    type: "integer"
-    format: "int32"
+    type: integer
+    format: int32
+
   PageParam:
-    name: "page"
-    in: "query"
+    name: page
+    in: query
     required: false
-    type: "integer"
-    format: "int32"
+    type: integer
+    format: int32
+
   PerPageParam:
-    name: "per_page"
-    in: "query"
+    name: per_page
+    in: query
     required: false
-    type: "integer"
-    format: "int32"
+    type: integer
+    format: int32
 
 definitions:
   LoginPayload:
-    type: "object"
+    type: object
     required:
-      - "email"
-      - "password"
+    - email
+    - password
     properties:
       email:
-        type: "string"
-        format: "email"
-        example: "user@example.com"
+        type: string
+        format: email
+        example: user@example.com
+
       password:
-        type: "string"
-        format: "password"
-        example: "password123"
+        type: string
+        format: password
+        example: password123
 
   LoginResponse:
-    type: "object"
+    type: object
     properties:
       status:
-        type: "string"
-        example: "success"
+        type: string
+        example: success
+
       message:
-        type: "string"
-        example: "Logged in successfully."
+        type: string
+        example: Logged in successfully.
+
       token:
-        type: "string"
-        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        type: string
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+  AdminLoginErrorResponse:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Invalid email or password.
+
+  CustomerLoginErrorResponse:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Invalid email or password!
+
+  MechanicLoginErrorResponse:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Invalid email or password.
 
   CustomerPayload:
-    type: "object"
+    type: object
     required:
-      - "name"
-      - "email"
-      - "phone"
-      - "password"
+    - name
+    - email
+    - phone
+    - password
     properties:
       name:
-        type: "string"
-        example: "Jane Driver"
+        type: string
+        example: Jane Driver
+
       email:
-        type: "string"
-        format: "email"
-        example: "jane@example.com"
+        type: string
+        format: email
+        example: jane@example.com
+
       phone:
-        type: "string"
-        example: "555-0100"
+        type: string
+        example: 555-0100
+
       password:
-        type: "string"
-        format: "password"
-        example: "password123"
+        type: string
+        format: password
+        example: password123
 
   CustomerUpdatePayload:
-    type: "object"
+    type: object
     properties:
       name:
-        type: "string"
-        example: "Jane Driver"
+        type: string
+        example: Jane Driver
+
       email:
-        type: "string"
-        format: "email"
-        example: "jane@example.com"
+        type: string
+        format: email
+        example: jane@example.com
+
       phone:
-        type: "string"
-        example: "555-0100"
+        type: string
+        example: 555-0100
+
       password:
-        type: "string"
-        format: "password"
-        example: "newpassword123"
+        type: string
+        format: password
+        example: newpassword123
 
   Customer:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "integer"
+        type: integer
         example: 1
+
       name:
-        type: "string"
-        example: "Jane Driver"
+        type: string
+        example: Jane Driver
+
       email:
-        type: "string"
-        format: "email"
-        example: "jane@example.com"
+        type: string
+        format: email
+        example: jane@example.com
+
       phone:
-        type: "string"
-        example: "555-0100"
+        type: string
+        example: 555-0100
+
       password:
-        type: "string"
-        example: "password123"
+        type: string
+        example: password123
 
   CustomerResponse:
     allOf:
-      - $ref: "#/definitions/Customer"
+    - $ref: '#/definitions/Customer'
 
   CustomersResponse:
-    type: "array"
+    type: array
     items:
-      $ref: "#/definitions/Customer"
+      $ref: '#/definitions/Customer'
 
   MechanicPayload:
-    type: "object"
+    type: object
     required:
-      - "name"
-      - "email"
-      - "phone"
-      - "salary"
-      - "password"
+    - name
+    - email
+    - phone
+    - salary
+    - password
     properties:
       name:
-        type: "string"
-        example: "Alex Wrench"
+        type: string
+        example: Alex Wrench
+
       email:
-        type: "string"
-        format: "email"
-        example: "alex@example.com"
+        type: string
+        format: email
+        example: alex@example.com
+
       phone:
-        type: "string"
-        example: "555-0110"
+        type: string
+        example: 555-0110
+
       salary:
-        type: "number"
-        format: "float"
+        type: number
+        format: float
         example: 65000.0
+
       password:
-        type: "string"
-        format: "password"
-        example: "password123"
+        type: string
+        format: password
+        example: password123
 
   MechanicUpdatePayload:
-    type: "object"
+    type: object
     properties:
       name:
-        type: "string"
-        example: "Alex Wrench"
+        type: string
+        example: Alex Wrench
+
       email:
-        type: "string"
-        format: "email"
-        example: "alex@example.com"
+        type: string
+        format: email
+        example: alex@example.com
+
       phone:
-        type: "string"
-        example: "555-0110"
+        type: string
+        example: 555-0110
+
       salary:
-        type: "number"
-        format: "float"
+        type: number
+        format: float
         example: 70000.0
+
       password:
-        type: "string"
-        format: "password"
-        example: "newpassword123"
+        type: string
+        format: password
+        example: newpassword123
 
   Mechanic:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "integer"
+        type: integer
         example: 1
+
       name:
-        type: "string"
-        example: "Alex Wrench"
+        type: string
+        example: Alex Wrench
+
       email:
-        type: "string"
-        format: "email"
-        example: "alex@example.com"
+        type: string
+        format: email
+        example: alex@example.com
+
       phone:
-        type: "string"
-        example: "555-0110"
+        type: string
+        example: 555-0110
+
       salary:
-        type: "number"
-        format: "float"
+        type: number
+        format: float
         example: 65000.0
+
       service_tickets:
-        type: "array"
+        type: array
         items:
-          $ref: "#/definitions/MechanicServiceTicket"
+          $ref: '#/definitions/MechanicServiceTicket'
 
   MechanicResponse:
     allOf:
-      - $ref: "#/definitions/Mechanic"
+    - $ref: '#/definitions/Mechanic'
 
   MechanicsResponse:
-    type: "array"
+    type: array
     items:
-      $ref: "#/definitions/Mechanic"
+      $ref: '#/definitions/Mechanic'
 
   MechanicSummary:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "integer"
+        type: integer
         example: 1
+
       name:
-        type: "string"
-        example: "Alex Wrench"
+        type: string
+        example: Alex Wrench
 
   MechanicServiceTicket:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "integer"
+        type: integer
         example: 1
+
       VIN:
-        type: "string"
-        example: "1HGBH41JXMN109186"
+        type: string
+        example: 1HGBH41JXMN109186
+
       service_date:
-        type: "string"
-        format: "date"
-        example: "2026-06-17"
+        type: string
+        format: date
+        example: '2026-06-17'
+
       service_desc:
-        type: "string"
-        example: "Oil change and tire rotation"
+        type: string
+        example: Oil change and tire rotation
+
       customer_id:
-        type: "integer"
+        type: integer
         example: 1
 
   InventoryPayload:
-    type: "object"
+    type: object
     required:
-      - "item_name"
-      - "price"
+    - item_name
+    - price
     properties:
       item_name:
-        type: "string"
-        example: "Oil Filter"
+        type: string
+        example: Oil Filter
+
       price:
-        type: "number"
-        format: "float"
+        type: number
+        format: float
         example: 19.99
 
   InventoryUpdatePayload:
-    type: "object"
+    type: object
     properties:
       item_name:
-        type: "string"
-        example: "Oil Filter"
+        type: string
+        example: Oil Filter
+
       price:
-        type: "number"
-        format: "float"
+        type: number
+        format: float
         example: 21.99
 
   Inventory:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "integer"
+        type: integer
         example: 1
+
       item_name:
-        type: "string"
-        example: "Oil Filter"
+        type: string
+        example: Oil Filter
+
       price:
-        type: "number"
-        format: "float"
+        type: number
+        format: float
         example: 19.99
+
       service_tickets_for_part:
-        type: "array"
+        type: array
         items:
-          $ref: "#/definitions/PartAssignedToTicket"
+          $ref: '#/definitions/PartAssignedToTicket'
 
   InventoryResponse:
     allOf:
-      - $ref: "#/definitions/Inventory"
+    - $ref: '#/definitions/Inventory'
 
   InventoryItemsResponse:
-    type: "array"
+    type: array
     items:
-      $ref: "#/definitions/Inventory"
+      $ref: '#/definitions/Inventory'
 
   InventorySummary:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "integer"
+        type: integer
         example: 1
+
       item_name:
-        type: "string"
-        example: "Oil Filter"
+        type: string
+        example: Oil Filter
+
       price:
-        type: "number"
-        format: "float"
+        type: number
+        format: float
         example: 19.99
 
   PartAssignedToTicket:
-    type: "object"
+    type: object
     properties:
       ticket_id:
-        type: "integer"
+        type: integer
         example: 1
+
       part_quantity:
-        type: "integer"
+        type: integer
         example: 2
 
   ServiceTicketPayload:
-    type: "object"
+    type: object
     required:
-      - "VIN"
-      - "service_date"
-      - "service_desc"
-      - "customer_id"
+    - VIN
+    - service_date
+    - service_desc
+    - customer_id
     properties:
       VIN:
-        type: "string"
-        example: "1HGBH41JXMN109186"
+        type: string
+        example: 1HGBH41JXMN109186
+
       service_date:
-        type: "string"
-        format: "date"
-        example: "2026-06-17"
+        type: string
+        format: date
+        example: '2026-06-17'
+
       service_desc:
-        type: "string"
-        example: "Oil change and tire rotation"
+        type: string
+        example: Oil change and tire rotation
+
       customer_id:
-        type: "integer"
+        type: integer
         example: 1
 
   ServiceTicket:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "integer"
+        type: integer
         example: 1
+
       VIN:
-        type: "string"
-        example: "1HGBH41JXMN109186"
+        type: string
+        example: 1HGBH41JXMN109186
+
       service_date:
-        type: "string"
-        format: "date"
-        example: "2026-06-17"
+        type: string
+        format: date
+        example: '2026-06-17'
+
       service_desc:
-        type: "string"
-        example: "Oil change and tire rotation"
+        type: string
+        example: Oil change and tire rotation
+
       customer_id:
-        type: "integer"
+        type: integer
         example: 1
+
       mechanics:
-        type: "array"
+        type: array
         items:
-          $ref: "#/definitions/MechanicSummary"
+          $ref: '#/definitions/MechanicSummary'
+
       parts_used:
-        type: "array"
+        type: array
         items:
-          $ref: "#/definitions/PartUsed"
+          $ref: '#/definitions/PartUsed'
 
   ServiceTicketResponse:
     allOf:
-      - $ref: "#/definitions/ServiceTicket"
+    - $ref: '#/definitions/ServiceTicket'
 
   ServiceTicketsResponse:
-    type: "array"
+    type: array
     items:
-      $ref: "#/definitions/ServiceTicket"
+      $ref: '#/definitions/ServiceTicket'
 
   ServiceTicketMechanicEditPayload:
-    type: "object"
+    type: object
     required:
-      - "add_mechanic_ids"
-      - "remove_mechanic_ids"
+    - add_mechanic_ids
+    - remove_mechanic_ids
     properties:
       add_mechanic_ids:
-        type: "array"
+        type: array
         items:
-          type: "integer"
+          type: integer
         example:
-          - 1
-          - 2
+        - 1
+        - 2
+
       remove_mechanic_ids:
-        type: "array"
+        type: array
         items:
-          type: "integer"
+          type: integer
         example:
-          - 3
+        - 3
 
   TicketPartPayload:
-    type: "object"
+    type: object
     required:
-      - "part_id"
-      - "part_quantity"
+    - part_id
+    - part_quantity
     properties:
       part_id:
-        type: "integer"
+        type: integer
         example: 1
+
       part_quantity:
-        type: "integer"
+        type: integer
         example: 2
 
   TicketPartQuantityUpdatePayload:
-    type: "object"
+    type: object
     required:
-      - "part_quantity"
+    - part_quantity
     properties:
       part_quantity:
-        type: "integer"
+        type: integer
         example: 3
 
   PartUsed:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "integer"
+        type: integer
         example: 1
+
       ticket_id:
-        type: "integer"
+        type: integer
         example: 1
+
       part_id:
-        type: "integer"
+        type: integer
         example: 1
+
       part_quantity:
-        type: "integer"
+        type: integer
         example: 2
+
       part:
-        $ref: "#/definitions/InventorySummary"
+        $ref: '#/definitions/InventorySummary'
 
   MessageResponse:
-    type: "object"
+    type: object
     properties:
       message:
-        type: "string"
-        example: "Operation completed successfully."
+        type: string
+        example: Operation completed successfully.
 
   ErrorResponse:
-    type: "object"
+    type: object
     properties:
       error:
-        type: "string"
-        example: "Resource not found."
+        type: string
+        example: Resource not found.
+
       message:
-        type: "string"
-        example: "Additional details."
+        type: string
+        example: Additional details.
 
   ValidationErrorResponse:
-    type: "object"
+    type: object
     additionalProperties:
-      type: "array"
+      type: array
+
       items:
-        type: "string"
+        type: string

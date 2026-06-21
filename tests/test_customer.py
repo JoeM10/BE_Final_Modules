@@ -72,7 +72,7 @@ class TestCustomer(unittest.TestCase):
 
         response = self.client.post("/customers/login", json=credentials)
 
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 401)
         self.assertEqual(response.json["LoginError"], "Invalid email or password!")
 
     def test_create_customer(self):

@@ -37,7 +37,7 @@ def login():
 
         return jsonify(response), 200
     else:
-        return jsonify({"LoginError": "Invalid email or password!"}), 400
+        return jsonify({"LoginError": "Invalid email or password!"}), 401
 
 # POST a new customer
 @customers_bp.route("/", methods=["POST"])
