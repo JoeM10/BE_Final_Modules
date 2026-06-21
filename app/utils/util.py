@@ -8,6 +8,12 @@ import os
 SECRET_KEY = os.getenv("PY_JOSE_TOKEN")
 SECRET_KEY_RENDER = os.getenv("SECRET_KEY_RENDER") or "super secret secrets"
 
+if not SECRET_KEY:
+    raise RuntimeError("SECRET_KEY envorinment variable is not set.")
+
+if not SECRET_KEY_RENDER:
+    raise RuntimeError("SECRET_KEY_RENDER envorinment variable is not set.")
+
 def encode_token(user_id, role): #using unique pieces of info to make our tokens user specific
     payload = {
         "exp": datetime.now(timezone.utc) + timedelta(days=0,hours=1), #Setting the expiration time to an hour past now
