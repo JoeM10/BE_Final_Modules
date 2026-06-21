@@ -17,7 +17,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"email\": \"garret@example.com\",\r\n    \"password\": \"extremely secret\"\r\n}",
+              "raw": "{\r\n  \"email\": \"fred.nanders@example.com\",\r\n  \"password\": \"password312\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -25,15 +25,13 @@
               }
             },
             "url": {
-              "raw": "http://127.0.0.1:5000/customers/login",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/customers/login",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "customers",
                 "login"
@@ -49,7 +47,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"name\": \"Fred Nanders\",\r\n  \"email\": \"fred.nanders@example.com\",\r\n  \"phone\": \"455-1111\",\r\n  \"password\": \"password312\"\r\n}",
+              "raw": "{\r\n  \"name\": \"Avery Johnson\",\r\n  \"email\": \"avery.johnson@example.com\",\r\n  \"phone\": \"555-0101\",\r\n  \"password\": \"password123\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -57,15 +55,13 @@
               }
             },
             "url": {
-              "raw": "http://127.0.0.1:5000/customers/",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/customers/",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "customers",
                 ""
@@ -77,18 +73,26 @@
         {
           "name": "GET all customers",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://127.0.0.1:5000/customers?page=2&per_page=2",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/customers?page=2&per_page=2",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "customers"
               ],
@@ -112,15 +116,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://127.0.0.1:5000/customers/2",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/customers/2",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "customers",
                 "2"
@@ -145,15 +147,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://127.0.0.1:5000/customers/my-tickets",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/customers/my-tickets",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "customers",
                 "my-tickets"
@@ -187,15 +187,13 @@
               }
             },
             "url": {
-              "raw": "http://127.0.0.1:5000/customers/update_account",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/customers/update_account",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "customers",
                 "update_account"
@@ -229,15 +227,13 @@
               }
             },
             "url": {
-              "raw": "http://127.0.0.1:5000/customers/2",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/customers/2",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "customers",
                 "2"
@@ -254,7 +250,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODE2MDY3NDIsImlhdCI6MTc4MTYwMzE0Miwic3ViIjoiMSJ9.MLHwLcaAu1AY7LtO6k72ABitP2ZRw6nVKQJNZwT-eUE",
+                  "value": "",
                   "type": "string"
                 }
               ]
@@ -262,15 +258,13 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://127.0.0.1:5000/customers/delete_account",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/customers/delete_account",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "customers",
                 "delete_account"
@@ -295,15 +289,13 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://127.0.0.1:5000/customers/1",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/customers/1",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "customers",
                 "1"
@@ -342,15 +334,13 @@
               }
             },
             "url": {
-              "raw": "http://127.0.0.1:5000/mechanics/",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/mechanics/",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "mechanics",
                 ""
@@ -376,15 +366,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://127.0.0.1:5000/mechanics?page=2&per_page=2",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/mechanics?page=2&per_page=2",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "mechanics"
               ],
@@ -418,15 +406,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://127.0.0.1:5000/mechanics/1",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/mechanics/1",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "mechanics",
                 "1"
@@ -451,15 +437,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://127.0.0.1:5000/mechanics/total_tickets",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/mechanics/total_tickets",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "mechanics",
                 "total_tickets"
@@ -493,15 +477,13 @@
               }
             },
             "url": {
-              "raw": "http://127.0.0.1:5000/mechanics/2",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/mechanics/2",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "mechanics",
                 "2"
@@ -530,15 +512,13 @@
               "raw": "{\r\n   \"name\": \"Terry\",\r\n   \"email\": \"terryw@email.com\",\r\n   \"phone\": \"(644)344-4363\",\r\n   \"salary\": 60000.00\r\n}"
             },
             "url": {
-              "raw": "http://127.0.0.1:5000/mechanics/2",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/mechanics/2",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "mechanics",
                 "2"
@@ -578,15 +558,13 @@
               }
             },
             "url": {
-              "raw": "http://127.0.0.1:5000/service-tickets/",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/service-tickets/",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "service-tickets",
                 ""
@@ -611,15 +589,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://127.0.0.1:5000/service-tickets?page=1&per_page=2",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/service-tickets?page=1&per_page=2",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "service-tickets"
               ],
@@ -653,15 +629,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://127.0.0.1:5000/service-tickets/1",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/service-tickets/1",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "service-tickets",
                 "1"
@@ -695,15 +669,13 @@
               }
             },
             "url": {
-              "raw": "http://127.0.0.1:5000/service-tickets/2/edit",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/service-tickets/2/edit",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "service-tickets",
                 "2",
@@ -738,15 +710,13 @@
               }
             },
             "url": {
-              "raw": "http://127.0.0.1:5000/service-tickets/1/parts",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/service-tickets/1/parts",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "service-tickets",
                 "1",
@@ -781,15 +751,13 @@
               }
             },
             "url": {
-              "raw": "http://127.0.0.1:5000/service-tickets/1/parts/5",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/service-tickets/1/parts/5",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "service-tickets",
                 "1",
@@ -806,15 +774,13 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://127.0.0.1:5000/service-tickets/1/parts/5",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/service-tickets/1/parts/5",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "service-tickets",
                 "1",
@@ -831,15 +797,13 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://127.0.0.1:5000/service-tickets/2",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/service-tickets/2",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "service-tickets",
                 "2"
@@ -878,15 +842,13 @@
               }
             },
             "url": {
-              "raw": "http://127.0.0.1:5000/inventory/",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/inventory/",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "inventory",
                 ""
@@ -911,15 +873,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://127.0.0.1:5000/inventory/",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/inventory/",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "inventory",
                 ""
@@ -944,15 +904,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://127.0.0.1:5000/inventory/1",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/inventory/1",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "inventory",
                 "1"
@@ -986,15 +944,13 @@
               }
             },
             "url": {
-              "raw": "http://127.0.0.1:5000/inventory/1",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/inventory/1",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "inventory",
                 "1"
@@ -1019,15 +975,13 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://127.0.0.1:5000/inventory/6",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/inventory/6",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "inventory",
                 "6"
@@ -1056,15 +1010,13 @@
               }
             },
             "url": {
-              "raw": "http://127.0.0.1:5000/admin/login",
-              "protocol": "http",
+              "raw": "https://be-final-modules.onrender.com/admin/login",
+              "protocol": "https",
               "host": [
-                "127",
-                "0",
-                "0",
-                "1"
+                "be-final-modules",
+                "onrender",
+                "com"
               ],
-              "port": "5000",
               "path": [
                 "admin",
                 "login"
