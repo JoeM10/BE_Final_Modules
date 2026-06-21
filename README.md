@@ -1,6 +1,6 @@
 # Mechanic Shop API
 
-A Flask REST API (Application Programming Interface) for managing a mechanic shop database. This project supports customers, mechanics, service tickets, inventory parts, parts used on tickets, token authentication, role-based route protection, rate limiting, caching, Swagger API documentation, automated unit tests, and Postman testing.
+A Flask REST API (Application Programming Interface) for managing a mechanic shop database. This project supports customers, mechanics, service tickets, inventory parts, parts used on tickets, token authentication, role-based route protection, rate limiting, caching, Swagger API documentation, automated unit tests, CI/CD (Continuous Integration/Continuous Deployment) with GitHub Actions, Render hosting, and Postman testing.
 
 ## Features
 
@@ -18,32 +18,39 @@ A Flask REST API (Application Programming Interface) for managing a mechanic sho
 | Caching                   | Uses Flask-Caching with SimpleCache configuration.                                                                                          |
 | Swagger documentation     | Includes Swagger UI documentation for viewing and testing API routes in the browser.                                                        |
 | Automated testing         | Includes Python unit tests for admin, customer, mechanic, inventory, and service ticket routes.                                             |
+| CI/CD with GitHub Actions | Uses GitHub Actions to build the project, run tests, and deploy only after the workflow succeeds.                                           |
+| Render hosting            | Uses Render for the hosted production deployment and database connection.                                                                   |
 | Postman testing           | Includes a Postman collection for testing API routes.                                                                                       |
 
 ## Tech Stack
 
-| Technology             | Purpose                                                                       |
-| ---------------------- | ----------------------------------------------------------------------------- |
-| Python                 | Main programming language.                                                    |
-| Flask                  | Web framework used to build the API.                                          |
-| Flask-SQLAlchemy       | ORM (Object Relational Mapper) used to connect Python models to MySQL tables. |
-| SQLAlchemy             | Database modeling and query support.                                          |
-| MySQL                  | Relational database used by the project.                                      |
-| mysql-connector-python | MySQL database driver.                                                        |
-| Marshmallow            | Request validation and response serialization.                                |
-| Flask-Marshmallow      | Flask integration for Marshmallow schemas.                                    |
-| python-jose            | JWT (JSON Web Token) creation and validation.                                 |
-| Flask-Limiter          | API route rate limiting.                                                      |
-| Flask-Caching          | Route and app-level caching support.                                          |
-| Flask-Swagger          | Swagger documentation support.                                                |
-| Flask-Swagger-UI       | Browser-based Swagger UI for API documentation.                               |
-| unittest               | Python testing framework used for automated route tests.                      |
-| Postman                | API testing through the included collection.                                  |
+| Technology             | Purpose                                                                                |
+| ---------------------- | -------------------------------------------------------------------------------------- |
+| Python                 | Main programming language.                                                             |
+| Flask                  | Web framework used to build the API.                                                   |
+| Flask-SQLAlchemy       | ORM (Object Relational Mapper) used to connect Python models to MySQL tables.          |
+| SQLAlchemy             | Database modeling and query support.                                                   |
+| MySQL                  | Relational database used by the project.                                               |
+| mysql-connector-python | MySQL database driver.                                                                 |
+| Marshmallow            | Request validation and response serialization.                                         |
+| Flask-Marshmallow      | Flask integration for Marshmallow schemas.                                             |
+| python-jose            | JWT (JSON Web Token) creation and validation.                                          |
+| Flask-Limiter          | API route rate limiting.                                                               |
+| Flask-Caching          | Route and app-level caching support.                                                   |
+| Flask-Swagger          | Swagger documentation support.                                                         |
+| Flask-Swagger-UI       | Browser-based Swagger UI for API documentation.                                        |
+| unittest               | Python testing framework used for automated route tests.                               |
+| GitHub Actions         | CI/CD workflow used to install dependencies, run tests, and deploy to Render.          |
+| Render                 | Production hosting platform used for the deployed application and database connection. |
+| Postman                | API testing through the included collection.                                           |
 
 ## Project Structure
 
 ```text
 BE_Final_Modules/
+├── .github/
+│   └── workflows/
+│       └── main.yaml
 ├── app/
 │   ├── blueprints/
 │   │   ├── admin/
@@ -64,9 +71,9 @@ BE_Final_Modules/
 │   ├── test_inventory.py
 │   ├── test_mechanics.py
 │   └── test_service_tickets.py
-├── app.py
 ├── config.py
 ├── example_data.txt
+├── flask_app.py
 ├── Mechanic_Shop.postman_collection.json
 ├── requirements.txt
 └── README.md
@@ -173,33 +180,59 @@ CREATE DATABASE mechanic_shop_db;
 
 Set environment variables:
 
-| Variable              | Description                              |
-| --------------------- | ---------------------------------------- |
-| `MYSQL_PASS`          | MySQL password used in the database URI. |
-| `PY_JOSE_TOKEN`       | Secret key used for JWT tokens.          |
-| `TEST_ADMIN_EMAIL`    | Admin login email.                       |
-| `TEST_ADMIN_PASSWORD` | Admin login password.                    |
+| Variable              | Description                                                       |
+| --------------------- | ----------------------------------------------------------------- |
+| `MYSQL_PASS`          | MySQL password used in the database URI.                          |
+| `PY_JOSE_TOKEN`       | Secret key used for JWT tokens.                                   |
+| `TEST_ADMIN_EMAIL`    | Admin login email.                                                |
+| `TEST_ADMIN_PASSWORD` | Admin login password.                                             |
+| `SERVICE_ID`          | Render service ID used by the GitHub Actions deployment workflow. |
+| `RENDER_API_KEY`      | Render API key used by the GitHub Actions deployment workflow.    |
 
-Run the app:
+Run the app locally:
 
 ```bash
 python app.py
 ```
 
-Server URL:
+Local server URL:
 
 ```text
 http://127.0.0.1:5000
 ```
 
+Production Render URL:
+
+```text
+https://be-final-modules.onrender.com
+```
+
+## Render Hosting
+
+This project now uses Render for production hosting. The hosted Render URL is:
+
+```text
+https://be-final-modules.onrender.com
+```
+
+Render is used for the production deployment and database connection, allowing the API to be accessed outside of the local development environment.
+
+Sensitive production values, such as database credentials and API keys, should be stored in Render environment variables or GitHub repository secrets instead of being hard-coded into the project files.
+
 ## Swagger API Documentation
 
 Swagger UI has been added to provide browser-based documentation for the API routes.
 
-After starting the Flask app, open the Swagger documentation at:
+After starting the Flask app locally, open the Swagger documentation at:
 
 ```text
 http://127.0.0.1:5000/api/docs
+```
+
+For the hosted Render version, open Swagger at:
+
+```text
+https://be-final-modules.onrender.com/api/docs
 ```
 
 The Swagger UI uses the `swagger.yaml` file located in:
@@ -304,6 +337,35 @@ Mechanic_Shop.postman_collection.json
 ```
 
 Import this file into Postman to test the API endpoints manually.
+
+## CI/CD with GitHub Actions
+
+This project now includes a GitHub Actions workflow for CI/CD (Continuous Integration/Continuous Deployment).
+
+The workflow file is located at:
+
+```text
+.github/workflows/main.yaml
+```
+
+The workflow runs when code is pushed to the `main` or `master` branch. It is separated into three main jobs:
+
+| Job      | Purpose                                                                                                |
+| -------- | ------------------------------------------------------------------------------------------------------ |
+| `build`  | Checks out the code, sets up Python, creates a virtual environment, and installs project dependencies. |
+| `test`   | Runs the automated unit tests from the `tests/` folder.                                                |
+| `deploy` | Deploys the project to Render after the test job succeeds.                                             |
+
+The Render deployment is configured to run only after the GitHub Actions workflow successfully completes the test job. This helps prevent bad code from being deployed and restarting the Render service with changes that could crash the application.
+
+The deployment step uses GitHub repository secrets for the Render service ID and Render API key:
+
+```text
+SERVICE_ID
+RENDER_API_KEY
+```
+
+These values should stay stored as secrets and should not be committed directly into the repository.
 
 ## Author
 
