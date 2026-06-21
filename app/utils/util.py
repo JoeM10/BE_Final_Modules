@@ -6,6 +6,7 @@ import jose
 import os
 
 SECRET_KEY = os.getenv("PY_JOSE_TOKEN")
+SECRET_KEY_RENDER = os.getenv("SECRET_KEY_RENDER") or "super secret secrets"
 
 def encode_token(user_id, role): #using unique pieces of info to make our tokens user specific
     payload = {

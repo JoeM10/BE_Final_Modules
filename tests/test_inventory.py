@@ -1,12 +1,10 @@
 import os
 import unittest
-
-os.environ.setdefault("PY_JOSE_TOKEN", "test-secret-key")
-
 from app import create_app
 from app.models import Inventory, db
 from app.utils.util import encode_token
 
+os.environ.setdefault("PY_JOSE_TOKEN", "test-secret-key")
 
 class TestInventory(unittest.TestCase):
     def setUp(self):
